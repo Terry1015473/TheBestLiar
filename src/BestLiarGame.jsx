@@ -3,7 +3,7 @@ import { Users, Crown, Eye, MessageCircle, Award, Play, RotateCcw } from 'lucide
 import styles from './BestLiarGame.module.css';
 import { db } from './firebase';
 import {
-    doc, setDoc, updateDoc, onSnapshot, arrayUnion, getDoc
+    doc, setDoc, updateDoc, onSnapshot, arrayUnion, getDoc, deleteDoc, arrayRemove
 } from 'firebase/firestore';
 
 const WORD_BANK = [
@@ -27,7 +27,29 @@ const WORD_BANK = [
   { word: "馬鈴薯戰爭", meaning: "「馬鈴薯戰爭」是1778-1779年間，普魯士與奧地利之間為爭奪巴伐利亞繼承權而爆發的一場「不流血」的戰爭。之所以得名，是因為雙方軍隊都沒有積極交戰，而是花費大量時間互相搜尋和掠奪對方陣地裡的馬鈴薯等食物，以補充給養並削弱敵人。" },
   { word: "茶黨事件", meaning: "「茶黨事件」發生在1773年，是美國獨立戰爭前夕殖民地人民反抗英國高稅收的一場激烈抗議行動。" },
   { word: "Hotel California (加州旅館)", meaning: " 這首由老鷹樂隊（Eagles）演唱的經典歌曲，並非真的在描述一家具體的旅館，而是一首充滿寓意和象徵的歌曲。" },
-  { word: "把耳朵叫醒", meaning: "由莫文蔚演唱的歌曲，並非字面上叫醒耳朵。歌詞透過「把耳朵叫醒」來比喻喚醒對聲音、對愛、對周遭一切的敏銳感受和知覺，是一種感官上的覺醒，以及對愛情逝去的省思，帶有淡淡的失落與感傷。" }
+  { word: "把耳朵叫醒", meaning: "由莫文蔚演唱的歌曲，並非字面上叫醒耳朵。歌詞透過「把耳朵叫醒」來比喻喚醒對聲音、對愛、對周遭一切的敏銳感受和知覺，是一種感官上的覺醒，以及對愛情逝去的省思，帶有淡淡的失落與感傷。" },
+  { word: "Gold Dust Girl (黃金粉女孩)", meaning: "貪婪之島卡牌A級指定卡，孵化後產出大量金粉，每天可收集500g金粉。" },
+  { word: "Gumbo", meaning: "gumbo 其名來自安哥拉語 ngombo（意指秋葵），是美國路易斯安那州的代表性濃湯料理。" },
+  { word: "孟姜女", meaning: "傳說中哭倒長城的孟姜女，很多人誤以為她姓“孟”，但“孟”其實是排行，姓氏應為“姜”（孟＝大女，非姓氏）。" },
+  { word: "布雷頓森林體系", meaning: "並不是位於森林中的金融體系，而是指1944年在美國紐罕布夏州布雷頓森林召開的國際貨幣會議後建立的固定匯率制度。" },
+  { word: "直升機撒錢 (Helicopter money)", meaning: "不是直升機實際投幣，而是指中央銀行或政府直接印錢發放給群眾以刺激經濟的理論性手段。" },
+  { word: "鹹水與淡水經濟學派", meaning: "並非描述水質，而是指美國內部分別位於大西洋沿岸（鹹水）與中西部（淡水）的兩種宏觀經濟研究取向，鹹水派較支持政府干預；淡水派則較堅持理性預期與市場效率。" },
+  { word: "吉芬商品 (Giffen good)", meaning: "不是人名，也不是罪名，而指價格上升時需求意外增加的商品—一種違反需求法則的極端案例。" },
+  { word: "艾奇沃斯盒 (Edgeworth box)", meaning: "不是一個實體的盒子，而是用來分析兩人兩商品交換均衡的經濟學圖形模型。" },
+  { word: "D-Day（D日）", meaning: "在中文多譯為「D日」，是軍事術語，代表重大作戰開始的指定日期，其中最著名的是1944年6月6日的諾曼第登陸。" },
+  { word: "改土歸流", meaning: "明清推動的邊疆治理政策，由土司制改為流官治理，實質是行政與司法制度改革，但名稱中完全沒有「法」字。" }
+];
+const WORD_BANK_CS = [
+  { word: "YOLO", meaning: "在電腦視覺領域，YOLO是「You Only Look Once」的縮寫，是一種即時物件偵測演算法。它能夠在單次圖像掃描中同時預測多個物體的邊界框和類別，實現快速且高效的目標識別。" },
+  { word: "PID", meaning: "在控制系統領域，PID是「比例-積分-微分 (Proportional-Integral-Derivative)」的縮寫，是一種回饋控制演算法。它廣泛應用於工業控制系統中，透過計算誤差值來調整控制器的輸出，以使系統達到期望的穩定狀態。" },
+  { word: "Cookie", meaning: "在網路技術中，Cookie是一種小型文字檔案，由網站伺服器發送到用戶的瀏覽器並儲存在用戶電腦上。它用於追蹤用戶的瀏覽行為、儲存用戶登入狀態或偏好設定，以便下次訪問時提供個性化服務。" },
+  { word: "Keypoints", meaning: "在姿態估計中，骨架點是指圖像或影片中人體（或其他對象）的特定、可識別的關鍵位置，例如肩膀、手肘、膝蓋、鼻子等。透過這些點的坐標，可以重構和分析人體的姿態。" },
+  { word: "感受野Receptive Field", meaning: "在卷積神經網路 (CNN) 中，感受野是指輸出層上一個特定特徵值所能「看到」或受影響的輸入圖像區域。" },
+  { word: "NMS", meaning: "在物件偵測中，NMS是一種後處理演算法。由於模型可能對同一個物件產生多個重疊的候選邊界框，NMS的作用是去除多餘的、重疊的低信心度預測框" }
+];
+const WORD_BANK_BASKETBALL = [
+  { word: "普林斯頓進攻 ", meaning: "「普林斯頓進攻」是一種強調傳切配合、大量無球跑動和利用掩護的進攻戰術，由美國普林斯頓大學的籃球教練皮特·卡里爾（Pete Carril）發展並推廣。" },
+  { word: "馬格西·伯格斯", meaning: " Muggsy Bogues 是NBA歷史上身高最矮的球員之一，身高僅160公分（5呎3吋）。儘管身材劣勢，他憑藉驚人的速度、敏捷的抄截和出色的傳球視野在NBA效力了14個賽季，證明了籃球不僅僅是高個子的運動。" }
 ];
 
 const BestLiarGame = () => {
@@ -49,6 +71,14 @@ const BestLiarGame = () => {
 
   const generateRoomCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
+  };
+
+  const deleteRoom = async (code) => {
+    try {
+      await deleteDoc(doc(db, 'rooms', code));
+    } catch (error) {
+      console.error("Error deleting room:", error);
+    }
   };
 
   const createRoom = async () => {
@@ -247,7 +277,99 @@ const BestLiarGame = () => {
     }
   };
 
-  const resetGame = () => {
+  const leaveRoom = async () => {
+    if (!roomCode || !currentPlayer) return;
+    
+    const roomRef = doc(db, 'rooms', roomCode);
+    
+    try {
+      const roomSnap = await getDoc(roomRef);
+      if (!roomSnap.exists()) return;
+      
+      const data = roomSnap.data();
+      const updatedPlayers = data.players.filter(p => p !== currentPlayer);
+      
+      // If this is the last player, delete the room
+      if (updatedPlayers.length === 0) {
+        await deleteRoom(roomCode);
+        resetLocalState();
+        return;
+      }
+      
+      // Clean up player-related data
+      const updatedPlayerScores = { ...data.playerScores };
+      delete updatedPlayerScores[currentPlayer];
+      
+      const updatedUsedListeners = data.usedListeners.filter(p => p !== currentPlayer);
+      
+      // Clean up WTF cards
+      const updatedWtfCards = { ...data.wtfCards };
+      delete updatedWtfCards[currentPlayer];
+      
+      let updateData = {
+        players: updatedPlayers,
+        playerScores: updatedPlayerScores,
+        usedListeners: updatedUsedListeners,
+        wtfCards: updatedWtfCards
+      };
+      
+      // Handle special game state updates
+      if (data.gameState === 'playing') {
+        let needsNewRound = false;
+        
+        // If the listener left
+        if (data.listener === currentPlayer) {
+          needsNewRound = true;
+        }
+        
+        // If the honest player left
+        if (data.honestPlayer === currentPlayer) {
+          needsNewRound = true;
+        }
+        
+        // If we need a new round but don't have enough players
+        if (needsNewRound && updatedPlayers.length < 3) {
+          updateData.gameState = 'lobby';
+          updateData.listener = '';
+          updateData.honestPlayer = '';
+          updateData.currentWord = null;
+          updateData.wtfCards = {};
+          updateData.usedListeners = [];
+          updateData.roundPhase = 'playing';
+          updateData.wtfCardsUsed = 0;
+          updateData.currentRound = 1;
+        } else if (needsNewRound) {
+          // Start a new round with remaining players
+          const availableListeners = updatedPlayers.filter(p => !updatedUsedListeners.includes(p));
+          if (availableListeners.length > 0) {
+            const newListener = availableListeners[Math.floor(Math.random() * availableListeners.length)];
+            const remainingPlayers = updatedPlayers.filter(p => p !== newListener);
+            const newHonestPlayer = remainingPlayers[Math.floor(Math.random() * remainingPlayers.length)];
+            const randomWord = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+            
+            updateData.listener = newListener;
+            updateData.honestPlayer = newHonestPlayer;
+            updateData.currentWord = randomWord;
+            updateData.wtfCards = {};
+            updateData.wtfCardsUsed = 0;
+            updateData.roundPhase = 'playing';
+          } else {
+            // All players have been listeners, end the game
+            updateData.gameState = 'ended';
+          }
+        }
+      }
+      
+      await updateDoc(roomRef, updateData);
+      resetLocalState();
+      
+    } catch (error) {
+      console.error("Error leaving room:", error);
+      resetLocalState();
+    }
+  };
+
+  const resetLocalState = () => {
     setGameState('home');
     setPlayers([]);
     setCurrentPlayer('');
@@ -263,6 +385,17 @@ const BestLiarGame = () => {
     setPlayerScores({});
     setRoundPhase('playing');
     setWtfCardsUsed(0);
+  };
+
+  const resetGame = () => {
+    leaveRoom();
+  };
+
+  const resetAndEndGame = () => {
+    if (roomCode) {
+      deleteRoom(roomCode);
+    }
+    resetLocalState();
   };
 
   const getPlayerRole = () => {
@@ -486,6 +619,13 @@ const BestLiarGame = () => {
                 >
                   End Round
                 </button>
+                <button
+                  onClick={leaveRoom}
+                  className={`${styles.button} ${styles.buttonSecondary} ${styles.buttonLeave}`}
+                >
+                  Leave the room
+                </button>
+
               </div>
             )}
             
@@ -527,10 +667,20 @@ const BestLiarGame = () => {
                 )}
                 
                 {!isRoomHead && (
-                  <p className={styles.textGray}>Waiting for host to continue...</p>
+                  <p className={styles.textGray}>Waiting for host to continue...</p>  
                 )}
               </div>
             )}
+            {!isRoomHead && (
+              <>
+                <button
+                  onClick={leaveRoom}
+                  className={`${styles.button} ${styles.buttonSecondary} ${styles.buttonLeave}`}
+                >
+                  Leave the room
+                </button>                    
+              </>  
+            )}          
           </div>
         </div>
       </div>
@@ -568,7 +718,7 @@ const BestLiarGame = () => {
             </div>
             
             <button
-              onClick={resetGame}
+              onClick={resetAndEndGame}
               className={`${styles.button} ${styles.buttonPrimary}`}
             >
               <RotateCcw className={styles.icon} />

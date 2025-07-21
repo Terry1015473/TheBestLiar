@@ -14,7 +14,16 @@ const ALL_GOOD_PEOPLE = [
   "啟發你成功的啟蒙老師", "世界貿易中心，掌管世界的股票交易", "舉家出遊的企鵝家庭",
   "黃仁勳", "主動在老人院服務的志工", "在遊戲室裡的大家","周杰倫", "路邊一對相互依為取暖的流浪貓跟流浪狗",
   "世界鬆餅大賽冠軍隊伍", "清華大學學務處", "在路上發傳單的小明", "大象寶寶與他的家人","Asepa演唱會舉辦處",
-  "早上總會開朗地跟你說早安的導護爺爺", "聾啞人的營隊", "Iphone製造工廠, 占全球90%的產量", "你最常去的一間麥當勞"
+  "早上總會開朗地跟你說早安的導護爺爺", "聾啞人的營隊", "Iphone製造工廠, 占全球90%的產量", "你最常去的一間麥當勞",
+  "非常堅強的孤兒，相信每天都是新的一天","你最常去的那間健身房", "用於網路通信的光纜，如果沒被撞斷的話",
+  "能讓Kobe復活的魔法師", "世界上最後一塊冰層，上面還站著一隻孤單的北極熊", "你鄰居家最重要的那根梁柱",
+  "封存古老病毒的一具棺材，若沒有被撞能繼續封存", "能拯救世界任何疾病的稀有中藥",
+  "在你小時候幫你撿球的路人阿伯","致力於氣候變遷研究的科學家團隊","每天在公園跳舞但從不吵人的阿姨團",
+  "把遺產全捐給流浪動物收容所的億萬富翁","因為你一句話而重拾希望的陌生人","幫你推摩托車到修車行的熱心機車騎士",
+  "會自動停止讓小動物過馬路的自駕車AI","會餵流浪貓還幫牠們蓋小房子的國小生","肯德基爺爺的雙胞胎兄弟，改賣健康便當",
+  "翻譯佛經的年輕比丘尼","每天準時報廢你手機鬧鐘的更新程式","會自動翻譯貓叫的社區貓語專家","穿著吊嘎但散發佛光的公車司機",
+  "宇宙中唯一對你IG限動認真留言的人","早上四點就去爬山的大叔","已經轉職為快遞員的悟空","戴著墨鏡的樂透預測師",
+  "從沒說話但總是點頭微笑的電梯保全","失業後決定浪跡天涯的皮卡丘","夢裡每次都來害你的同一位陌生人"
 ].map(name => ({ id: generateUniqueId(), name, type: 'person', character: 'good' }));
 
 const ALL_BAD_PEOPLE = [
@@ -22,7 +31,20 @@ const ALL_BAD_PEOPLE = [
   "小時候偷你橡皮擦的同學", "販賣小狗肉餅的餅店師傅", "在軌道上耍智障的白痴網紅",
   "一群奧客大媽旅行團", "不受控制的幼稚園小孩", "捍衛屁孩的恐龍家長",
   "不讓博愛座就破口大罵的阿北", "偷用你洗髮精兩年半的室友", "一到周末就施工的樓上鄰居",
-  "撞上後有50%的機率引爆一個核彈"
+  "撞上後有50%的機率引爆一個核彈", "生化金正恩", "賈斯汀比伯", "克蘇魯",
+  "每天在凌晨打鑽地機的施工阿伯","把廁所弄得像戰場還不沖水的陌生人","AI深偽技術詐騙集團主謀",
+  "把整瓶香水當滅火器噴的鄰座旅客","喜歡把狗丟在車上自己去百貨公司逛街的主人",
+  "投錯票還怪社會的社會大叔","會對自助結帳機大聲吼叫的路人","會在Netflix共用帳號上偷改語言設定的遠房表親",
+  "在迷因群組狂發詐騙連結的老爸","偷電瓶只為偷電的機車竊賊","總是插隊還理直氣壯的阿姨",
+  "半夜三點還在開卡丁車的隔壁鄰居","買10件衣服只為退貨賺贈品的人","天天跟蹤你Spotify帳號並抄你的歌單",
+  "會在電影院大聲講劇情還爆雷的陌生人","覺得AI會毀滅世界卻天天用ChatGPT的部落客",
+  "強迫同事玩直銷的資深業務","用五倍券買NFT的KOL","每天都要開全音量追劇的捷運乘客",
+  "地震時第一個把你推開的人","曾在你房間種下仙人掌然後不認帳的前任",
+  "喜歡丟垃圾但堅稱自己是生態藝術家","走路都看手機還嫌你擋路的人",
+  "夢到你背叛他就跟你吵架的人","打疫苗還要自拍六張上限動的人",
+  "在面試時說你是他的最大敵人","會偷吃辦公室冰箱裡別人便當的那個傢伙",
+  "懷疑你偷他筆結果發現是自己放錯抽屜還不道歉的人","會故意在你面前說『我不喜歡你』來測試你反應的控制狂",
+  "惡意在二手交易平台放釣魚連結的詐騙王"
 ].map(name => ({ id: generateUniqueId(), name, type: 'person', character: 'bad' }));
 
 // Define all possible State Cards as objects with unique IDs and properties
@@ -43,6 +65,32 @@ const ALL_STATE_CARDS = [
   { id: generateUniqueId(), name: "丟垃圾時一定會做垃圾分類", type: "state", description: "Ultimate test of survival." },
   { id: generateUniqueId(), name: "其實他是你失散多年的親友", type: "state", description: "Everyone is happy." },
   { id: generateUniqueId(), name: "欠了你500美金", type: "state", description: "Intergalactic conflict." },
+  { id: generateUniqueId(), name: "衣服都是由海豹寶寶製成的", type: "state", description: "Intergalactic conflict." },
+  { id: generateUniqueId(), name: "在你的水壺裡偷吐口水", type: "state", description: "Intergalactic conflict." },
+  { id: generateUniqueId(), name: "總是發布歧視同性戀言論", type: "state", description: "Intergalactic conflict." },
+  { id: generateUniqueId(), name: "其實是流浪動物保護協會的會長", type: "state", description: "Intergalactic conflict." },
+  { id: generateUniqueId(), name: "剛剛拯救了一位差點被車撞的小孩子", type: "state", description: "Intergalactic conflict." },
+  { id: generateUniqueId(), name: "計畫屠殺你最喜歡的動物", type: "state", description: "Intergalactic conflict." },
+  { id: generateUniqueId(), name: "每天都會和垃圾車一起唱《少女的祈禱》", type: "state", description: "Spreads joy." },
+  { id: generateUniqueId(), name: "正在逃避報稅責任", type: "state", description: "Increases chaos." },
+  { id: generateUniqueId(), name: "手機沒電時總是能借你行動電源", type: "state", description: "Positive social impact." },
+  { id: generateUniqueId(), name: "每次考試都偷看你答案", type: "state", description: "Unexpected betrayal." },
+  { id: generateUniqueId(), name: "為了減碳堅持用走的去宜蘭", type: "state", description: "Boosts morale." },
+  { id: generateUniqueId(), name: "堅信地球是平的還經常發言", type: "state", description: "Increases chaos." },
+  { id: generateUniqueId(), name: "幫助1000隻海龜逃過吸管危機", type: "state", description: "Positive social impact." },
+  { id: generateUniqueId(), name: "曾經偷偷篡改你的期末報告內容", type: "state", description: "Unexpected betrayal." },
+  { id: generateUniqueId(), name: "喜歡在會議中裝沒聽見主管說話", type: "state", description: "Boosts morale." },
+  { id: generateUniqueId(), name: "每次只剩你一張UNO牌時就出+4", type: "state", description: "Increases chaos." },
+  { id: generateUniqueId(), name: "其實是全人類的守護神，但很低調", type: "state", description: "Ultimate test of survival." },
+  { id: generateUniqueId(), name: "小時候幫你剪壞頭髮的理髮師", type: "state", description: "Spreads joy." },
+  { id: generateUniqueId(), name: "每天在Dcard匿名爆料別人，但從不承認是自己", type: "state", description: "Increases chaos." },
+  { id: generateUniqueId(), name: "總是在你最餓時剛好傳來美食限動", type: "state", description: "Unexpected betrayal." },
+  { id: generateUniqueId(), name: "家裡有地下室藏著外星人", type: "state", description: "Ultimate test of survival." },
+  { id: generateUniqueId(), name: "正在拍攝一部拯救人類文明的電影", type: "state", description: "Boosts morale." },
+  { id: generateUniqueId(), name: "每次下雨就剛好忘帶傘", type: "state", description: "Increases chaos." },
+  { id: generateUniqueId(), name: "總是第一個發現考卷多印一張的人", type: "state", description: "Spreads joy." },
+  { id: generateUniqueId(), name: "其實是某種神祕生物的轉世", type: "state", description: "Unexpected betrayal." },
+  { id: generateUniqueId(), name: "天生記憶力極差但剛好記得你當年的黑歷史", type: "state", description: "Spreads joy." }
 ];
 
 const TrolleyProblemGame = () => {

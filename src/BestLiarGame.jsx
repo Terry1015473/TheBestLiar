@@ -5,6 +5,7 @@ import { db } from './firebase';
 import {
     doc, setDoc, updateDoc, onSnapshot, arrayUnion, getDoc, deleteDoc, arrayRemove
 } from 'firebase/firestore';
+import TrolleyProblemGame from './TrolleyProblemGame ';
 
 const WORD_BANK = [
   { word: "超一流運動選手的蛋", meaning: "來自《獵人×獵人》的虛構卡牌遊戲《貪婪之島》中一張極難獲得的道具卡，效果未知但稀有度極高。" },

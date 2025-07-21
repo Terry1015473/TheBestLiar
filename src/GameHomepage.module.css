@@ -1,0 +1,218 @@
+/* Container and Layout */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eff6ff 0%, #faf5ff 100%);
+  padding: 1rem;
+}
+
+.wrapper {
+  /* max-width: 90vw; */
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-top: 2rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #6b7280;
+}
+
+/* Game Grid */
+.gameGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .gameGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Game Cards */
+.gameCard {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+}
+
+.gameCard:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.cardContent {
+  padding: 2rem;
+}
+
+/* Icon Container */
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.iconWrapper {
+  background: #fecaca;
+  padding: 1rem;
+  border-radius: 50%;
+}
+
+.trolleyIconWrapper {
+  background: #bfdbfe;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  color: #dc2626;
+}
+
+.trolleyIconWrapper .icon {
+  color: #2563eb;
+}
+
+/* Game Title */
+.gameTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+/* Game Description */
+.gameDescription {
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  line-height: 1.625;
+}
+
+/* Game Features */
+.gameFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.featureIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* Button Container */
+.buttonContainer {
+  text-align: center;
+}
+
+.playButton {
+  background: #ef4444;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.playButton:hover {
+  background: #dc2626;
+}
+
+.trolleyButton {
+  background: #3b82f6;
+}
+
+.trolleyButton:hover {
+  background: #2563eb;
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 4rem;
+  padding-bottom: 2rem;
+}
+
+.footerText {
+  color: #6b7280;
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+  .title {
+    font-size: 2.25rem;
+  }
+  
+  .subtitle {
+    font-size: 1.125rem;
+  }
+  
+  .cardContent {
+    padding: 1.5rem;
+  }
+  
+  .gameTitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* Animation for better UX */
+.gameCard {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.gameCard:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -5,6 +5,7 @@
   min-height: 100vh;
   padding: 1rem;
   background: linear-gradient(to bottom right, #7c3aed, #3b82f6);
+  min-width: 95vh;
 }
 
 .maxWidthMd {
@@ -145,6 +146,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.15s ease-in-out;
+  margin: 0.5rem;
 }
 
 .button:disabled {
@@ -164,6 +166,7 @@
 .buttonSecondary {
   background-color: #2563eb;
   color: white;
+  margin: 0.5rem;
 }
 
 .buttonSecondary:hover:not(:disabled) {
@@ -338,6 +341,81 @@
 
 .gap6 {
   gap: 1.5rem;
+}
+
+.personCard {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem; /* text-sm */
+  text-align: center;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow-md */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: default; /* Indicate it's not directly clickable but can be hovered */
+  flex-grow: 1; /* Allows cards to grow and fill space */
+  min-width: 150px; /* Minimum width for cards */
+}
+
+.personCard:hover {
+  transform: translateY(-3px); /* Slight lift on hover */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Larger shadow on hover */
+}
+
+.goodPersonCard {
+  background-color: #d1fae5; /* equivalent to bg-green-100 */
+  color: #065f46; /* equivalent to text-green-800 */
+  border: 1px solid #34d399; /* A green border */
+}
+
+.badPersonCard {
+  background-color: #fee2e2; /* equivalent to bg-red-100 */
+  color: #991b1b; /* equivalent to text-red-800 */
+  border: 1px solid #f87171; /* A red border */
+}
+
+.emptyPersonCard {
+  background-color: #f3f4f6; /* light gray */
+  color: #6b7280; /* gray text */
+  border: 1px dashed #d1d5db; /* dashed border */
+}
+
+/* NEW: Style for system-placed (non-removable) cards */
+.systemPlacedCard {
+  background-color: #a7f3d0; /* A darker green for system-placed good cards */
+  color: #047857; /* Darker text for contrast */
+  border: 2px solid #10b981; /* A more prominent border */
+  cursor: not-allowed; /* Indicate it's not interactive for removal */
+  opacity: 0.9; /* Slightly subdued look */
+}
+
+.systemPlacedCard:hover {
+  transform: none; /* No lift on hover for system cards */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* No extra shadow on hover */
+}
+
+/* For the train icon animation */
+.trainImpactIcon {
+  position: absolute; /* Will be positioned relative to its parent container */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.1); /* Start small */
+  font-size: 2rem; /* Initial size */
+  transition: transform 1s ease-out, font-size 1s ease-out, opacity 1s ease-out; /* Animation properties */
+  opacity: 0; /* Start invisible */
+  z-index: 10; /* Ensure it's on top */
+  color: #ff0000; /* Red color for impact */
+  pointer-events: none; /* Allows clicks on elements behind it */
+}
+
+.trainImpactIcon.animate {
+  transform: translate(-50%, -50%) scale(3); /* Grow larger */
+  font-size: 8rem; /* Final size */
+  opacity: 1; /* Become visible */
+}
+
+/* Add this to your styles for the rail containers if they aren't already relative */
+.railDisplayContainer { /* Apply this to the div wrapping each rail */
+  position: relative;
+  overflow: hidden; /* Important to clip the growing icon if it goes too far outside */
 }
 
 /* Responsive Grid */

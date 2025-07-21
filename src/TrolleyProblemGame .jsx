@@ -188,7 +188,7 @@ const TrolleyProblemGame = () => {
     // Initialize scores (each player starts with 3 points)
     const currentScores = gameData?.scores || {};
     const scores = Object.fromEntries(
-      roomPlayers.map(p => [p, currentScores[p] !== undefined ? currentScores[p] : 10])
+      roomPlayers.map(p => [p, currentScores[p] !== undefined ? currentScores[p] : 5])
     );
 
     await updateDoc(roomRef, {
@@ -647,6 +647,15 @@ const TrolleyProblemGame = () => {
             </div>
           </div>
         </div>
+        {/* Footer */}
+        <div className={styles.footer}>
+            <p className={styles.footerText}>
+            司機: 選擇要衝撞的軌道。<br />
+            玩家: 根據自己的隊伍擺上好人卡與壞人卡，並在最終加上特性卡。<br />
+            請示著保護自己的軌道。<br />
+            在按一次卡片能收回卡牌，但注意特性卡無法收回。
+            </p>
+        </div>
       </div>
     );
   }
@@ -693,6 +702,15 @@ const TrolleyProblemGame = () => {
               Leave Room
             </button>
           </div>
+        </div>
+        {/* Footer */}
+        <div className={styles.footer}>
+            <p className={styles.footerText}>
+            司機: 選擇要衝撞的軌道。<br />
+            玩家: 根據自己的隊伍擺上好人卡與壞人卡，並在最終加上特性卡。<br />
+            請示著保護自己的軌道。<br />
+            在按一次卡片能收回卡牌，但注意特性卡無法收回。
+            </p>
         </div>
       </div>
     );

@@ -26,7 +26,7 @@ const GameHomepage = () => {
             🎮 Game Hub
           </h1>
           <p className={styles.subtitle}>
-            Choose your adventure - Social deduction games await!
+            充滿Bug的遊戲世界 - 選擇你想體驗的糞game!
           </p>
         </div>
 
@@ -45,12 +45,11 @@ const GameHomepage = () => {
               </div>
               
               <h2 className={styles.gameTitle}>
-                The Best Liar
+                瞎掰王
               </h2>
               
               <p className={styles.gameDescription}>
-                A social deduction game where players take turns being the listener, honest player, or liar. 
-                Can you spot who's telling the truth?
+                瞎掰者試著讓聽者信以為真，老實人盡可能不被懷疑，聽者別聽信讒言相信自己的智慧吧!
               </p>
               
               <div className={styles.gameFeatures}>
@@ -86,12 +85,13 @@ const GameHomepage = () => {
               </div>
               
               <h2 className={styles.gameTitle}>
-                Trolley Problem
+                電車難題 - 終極審判
               </h2>
               
               <p className={styles.gameDescription}>
-                A moral dilemma game where teams compete to influence the driver's impossible choice. 
-                Philosophy meets strategy!
+                尋找你內心中真正在乎的東西，窺探人性的光輝。
+                保護自己的鐵路不被衝撞，理解司機使他選擇撞向另一側。
+                善用特性牌改變卡牌的本質。
               </p>
               
               <div className={styles.gameFeatures}>
@@ -118,7 +118,7 @@ const GameHomepage = () => {
         {/* Footer */}
         <div className={styles.footer}>
           <p className={styles.footerText}>
-            Choose a game above to get started. Gather your friends and let the fun begin! 🎉
+            Choose a game above to get started. Gather your friends and let the fun begin!
           </p>
         </div>
       </div>

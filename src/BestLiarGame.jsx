@@ -494,6 +494,15 @@ const BestLiarGame = () => {
             </div>
           </div>
         </div>
+        {/* Footer */}
+        <div className={styles.footer}>
+            <p className={styles.footerText}>
+            聽者: 聆聽每個人解釋該題目給你聽。<br />
+            老實人: 擁有該題目的答案，試著別讓聽者懷疑你是瞎掰人。<br />
+            瞎掰人: 不知道題目在說啥，請發揮想像力別讓聽者給你公三小。<br />
+            試著擾亂他人讓自己不被懷疑直到最後一刻吧!
+            </p>
+        </div>
       </div>
     );
   }
@@ -539,6 +548,15 @@ const BestLiarGame = () => {
               Leave Room
             </button>
           </div>
+        </div>
+        {/* Footer */}
+        <div className={styles.footer}>
+            <p className={styles.footerText}>
+            聽者: 聆聽每個人解釋該題目給你聽。<br />
+            老實人: 擁有該題目的答案，試著別讓聽者懷疑你是瞎掰人。<br />
+            瞎掰人: 不知道題目在說啥，請發揮想像力別讓聽者給你公三小。<br />
+            試著擾亂他人讓自己不被懷疑直到最後一刻吧!
+            </p>
         </div>
       </div>
     );

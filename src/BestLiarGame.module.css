@@ -298,6 +298,18 @@
   margin-top: 1rem;
 }
 
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 4rem;
+  padding-bottom: 2rem;
+}
+
+.footerText {
+  color: #070707;
+  font-weight: bold;
+}
+
 /* Flexbox */
 .flexCenter {
   display: flex;

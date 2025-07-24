@@ -23,7 +23,9 @@ const ALL_GOOD_PEOPLE = [
   "會自動停止讓小動物過馬路的自駕車AI","會餵流浪貓還幫牠們蓋小房子的國小生","肯德基爺爺的雙胞胎兄弟，改賣健康便當",
   "翻譯佛經的年輕比丘尼","每天準時報廢你手機鬧鐘的更新程式","會自動翻譯貓叫的社區貓語專家","穿著吊嘎但散發佛光的公車司機",
   "宇宙中唯一對你IG限動認真留言的人","早上四點就去爬山的大叔","已經轉職為快遞員的悟空","戴著墨鏡的樂透預測師",
-  "從沒說話但總是點頭微笑的電梯保全","失業後決定浪跡天涯的皮卡丘","夢裡每次都來害你的同一位陌生人"
+  "從沒說話但總是點頭微笑的電梯保全","失業後決定浪跡天涯的皮卡丘","夢裡每次都來害你的同一位陌生人",
+  "鴨媽媽和他的孩子","幫你辦生日驚喜派對的我們","地球上的每個護士","正要去拯救軌道上孩子的大腳怪",
+  "一間你理想中的租屋處且租金遠低於你的預算"
 ].map(name => ({ id: generateUniqueId(), name, type: 'person', character: 'good' }));
 
 const ALL_BAD_PEOPLE = [
@@ -44,7 +46,7 @@ const ALL_BAD_PEOPLE = [
   "夢到你背叛他就跟你吵架的人","打疫苗還要自拍六張上限動的人",
   "在面試時說你是他的最大敵人","會偷吃辦公室冰箱裡別人便當的那個傢伙",
   "懷疑你偷他筆結果發現是自己放錯抽屜還不道歉的人","會故意在你面前說『我不喜歡你』來測試你反應的控制狂",
-  "惡意在二手交易平台放釣魚連結的詐騙王"
+  "惡意在二手交易平台放釣魚連結的詐騙王","只會耍智障作秀的政治家",""
 ].map(name => ({ id: generateUniqueId(), name, type: 'person', character: 'bad' }));
 
 // Define all possible State Cards as objects with unique IDs and properties
@@ -90,7 +92,8 @@ const ALL_STATE_CARDS = [
   { id: generateUniqueId(), name: "每次下雨就剛好忘帶傘", type: "state", description: "Increases chaos." },
   { id: generateUniqueId(), name: "總是第一個發現考卷多印一張的人", type: "state", description: "Spreads joy." },
   { id: generateUniqueId(), name: "其實是某種神祕生物的轉世", type: "state", description: "Unexpected betrayal." },
-  { id: generateUniqueId(), name: "天生記憶力極差但剛好記得你當年的黑歷史", type: "state", description: "Spreads joy." }
+  { id: generateUniqueId(), name: "天生記憶力極差但剛好記得你當年的黑歷史", type: "state", description: "Spreads joy." },
+  { id: generateUniqueId(), name: "一直偷窺你上廁所", type: "state", description: "Spreads joy." }
 ];
 
 const TrolleyProblemGame = () => {

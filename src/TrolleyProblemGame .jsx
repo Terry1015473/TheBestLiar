@@ -5,7 +5,7 @@ import styles from './BestLiarGame.module.css';
 import { Users, Crown, Play, RotateCcw, Award } from 'lucide-react';
 
 // Helper to generate unique IDs for cards
-const generateUniqueId = () => Math.random().toString(36).substring(2, 15);
+const generateUniqueId = () => Math.random().toString(36).substring(2, 15);  
 
 // Define all possible Person Cards as objects with unique IDs and properties
 const ALL_GOOD_PEOPLE = [
@@ -46,7 +46,7 @@ const ALL_BAD_PEOPLE = [
   "夢到你背叛他就跟你吵架的人","打疫苗還要自拍六張上限動的人",
   "在面試時說你是他的最大敵人","會偷吃辦公室冰箱裡別人便當的那個傢伙",
   "懷疑你偷他筆結果發現是自己放錯抽屜還不道歉的人","會故意在你面前說『我不喜歡你』來測試你反應的控制狂",
-  "惡意在二手交易平台放釣魚連結的詐騙王","只會耍智障作秀的政治家",""
+  "惡意在二手交易平台放釣魚連結的詐騙王","只會耍智障作秀的政治家"
 ].map(name => ({ id: generateUniqueId(), name, type: 'person', character: 'bad' }));
 
 // Define all possible State Cards as objects with unique IDs and properties
@@ -229,9 +229,9 @@ const TrolleyProblemGame = () => {
         // Get 3 random bad persons
         const badPersons = [...ALL_BAD_PEOPLE].sort(() => Math.random() - 0.5).slice(0, 3);
         // Get 1 random state card
-        const stateCard = [...ALL_STATE_CARDS].sort(() => Math.random() - 0.5).slice(0, 1);
+        const stateCard = [...ALL_STATE_CARDS].sort(() => Math.random() - 0.5).slice(0, 3);
         
-        playerHands[player] = [...goodPersons, ...badPersons, ...stateCard]; // Player gets 3 good, 3 bad, 1 state card
+        playerHands[player] = [...goodPersons, ...badPersons, ...stateCard]; // Player gets 3 good, 3 bad, 3 state card
         totalStateCardsCount++; // Increment total state cards for each non-driver player
       }
     });

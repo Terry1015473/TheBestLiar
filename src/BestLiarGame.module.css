@@ -639,3 +639,10 @@
 .iconYellow {
   color: #eab308;
 }
+
+.wtfIcon {
+  width: 24px;
+  height: 24px;
+  margin-left: 8pt;
+  vertical-align: middle;
+}

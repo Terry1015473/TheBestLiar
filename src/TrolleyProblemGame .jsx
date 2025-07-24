@@ -662,7 +662,7 @@ const TrolleyProblemGame = () => {
 
   function playAudio() {
     const audio = document.createElement("audio");
-    audio.src = "assets/train.mp3";
+    audio.src = "assets/trainScream.m4a";
     audio.play();
   }
 

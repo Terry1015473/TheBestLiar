@@ -5,7 +5,6 @@ import { db } from './firebase';
 import {
     doc, setDoc, updateDoc, onSnapshot, arrayUnion, getDoc, deleteDoc, arrayRemove
 } from 'firebase/firestore';
-import TrolleyProblemGame from './TrolleyProblemGame ';
 
 const WORD_BANK = [
   { word: "超一流運動選手的蛋", meaning: "來自《獵人×獵人》的虛構卡牌遊戲《貪婪之島》中一張極難獲得的道具卡，效果未知但稀有度極高。" },
@@ -73,6 +72,8 @@ const BestLiarGame = () => {
   const [playerScores, setPlayerScores] = useState({});
   const [roundPhase, setRoundPhase] = useState('playing'); // playing, ended
   const [wtfCardsUsed, setWtfCardsUsed] = useState(0);
+  const [displayWtfOnPlayer, setDisplayWtfOnPlayer] = useState(null);
+  const [showFullScreenWtf, setShowFullScreenWtf] = useState(false);
 
   const generateRoomCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -193,16 +194,20 @@ const BestLiarGame = () => {
   };
 
   const sendWtfCard = async (targetPlayer) => {
-    if (wtfCardsUsed >= 3 || currentPlayer !== listener || wtfCards[targetPlayer]) return;
+    if (wtfCardsUsed >= players.length || currentPlayer !== listener || wtfCards[targetPlayer]) return;
     
     const roomRef = doc(db, "rooms", roomCode);
-    const newWtfCards = { ...wtfCards, [targetPlayer]: true };
+    const newWtfCards = { ...wtfCards, [targetPlayer]: Date.now() };
     
     try {
       await updateDoc(roomRef, {
         wtfCards: newWtfCards,
         wtfCardsUsed: wtfCardsUsed + 1
       });
+      setDisplayWtfOnPlayer(targetPlayer);
+      setTimeout(() => {
+        setDisplayWtfOnPlayer(null);
+      }, 5000);
     } catch (error) {
       console.error("Error sending WTF card:", error);
     }
@@ -390,6 +395,7 @@ const BestLiarGame = () => {
     setPlayerScores({});
     setRoundPhase('playing');
     setWtfCardsUsed(0);
+    setShowFullScreenWtf(false);
   };
 
   const resetGame = () => {
@@ -450,6 +456,10 @@ const BestLiarGame = () => {
 
     return () => unsub();
   }, [roomCode, currentPlayer]);
+
+  // useEffect(() => {
+  //   if(wtfCards)
+  // })
 
   if (gameState === 'home') {
     return (
@@ -601,14 +611,14 @@ const BestLiarGame = () => {
             {currentPlayer === listener && roundPhase === 'playing' && (
               <div className={styles.mb6}>
                 <h3 className={`${styles.subheading} ${styles.mb3}`}>
-                  已寄出的公三小 ({wtfCardsUsed}/3)
+                  已寄出的公三小 ({wtfCardsUsed}/{players.length})
                 </h3>
                 <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
                   {players.filter(p => p !== listener).map(player => (
                     <button
                       key={player}
                       onClick={() => sendWtfCard(player)}
-                      disabled={wtfCardsUsed >= 3 || wtfCards[player]}
+                      disabled={wtfCardsUsed >= players.length || wtfCards[player]}
                       className={`${styles.buttonWtf} ${
                         wtfCards[player] 
                           ? styles.buttonWtfActive
@@ -627,7 +637,14 @@ const BestLiarGame = () => {
               <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
                 {players.map(player => (
                   <div key={player} className={styles.scoreItem}>
-                    <span className={styles.playerName}>{player}</span>
+                    <span className={styles.playerName}>
+                      {player}
+                      {displayWtfOnPlayer === player && (
+                        <div className={`${styles.wtfIcon} `}>
+                          ❓
+                        </div>
+                      )}
+                      </span>
                     <span className={styles.score}>{playerScores[player] || 0}</span>
                   </div>
                 ))}

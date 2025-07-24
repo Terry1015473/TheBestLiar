@@ -660,12 +660,6 @@ const TrolleyProblemGame = () => {
     // Ensure all variables from gameData used inside the effect are in the dependency array.
   }, [gameData?.selectedRail, gameData?.roundPhase, gameData?.teamA, gameData?.teamB, gameData?.currentDriver, currentPlayer]);
 
-  function playAudio() {
-    const audio = document.createElement("audio");
-    audio.src = "assets/trainScream.m4a";
-    audio.play();
-  }
-
   // Home screen
   if (gameState === 'home') {
     return (
@@ -869,7 +863,7 @@ const TrolleyProblemGame = () => {
 
   return (
     <div className={styles.container}>
-      <audio ref={trainAudioRef} src="/assets/train.mp3" preload="auto" />
+      <audio ref={trainAudioRef} src="/assets/trainScream.m4a" preload="auto" />
       <div className={styles.maxWidth2xl}>
         <div className={styles.cardSmall}>
           <div className={`${styles.textCenter} ${styles.mb4}`}>

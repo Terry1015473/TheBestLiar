@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { doc, getDoc, updateDoc, onSnapshot, setDoc, arrayUnion, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import styles from './BestLiarGame.module.css';
@@ -106,6 +106,7 @@ const TrolleyProblemGame = () => {
   const [isRoomHead, setIsRoomHead] = useState(false);
   const [isImpactAnimating, setIsImpactAnimating] = useState(false);
   const [impactedRailVisual, setImpactedRailVisual] = useState(null); // 'A' or 'B'
+  const trainAudioRef = useRef(null);
   
   // Trolley game specific state
   const [gameData, setGameData] = useState(null);
@@ -623,7 +624,7 @@ const TrolleyProblemGame = () => {
     return () => unsub();
   }, [roomCode, currentPlayer]);
 
-  // New useEffect for managing train impact animation
+  // New useEffect for managing train impact animation and sound
   useEffect(() => {
     // Check if a rail has been selected and the round is completed
     if (gameData?.selectedRail && gameData.roundPhase === 'completed') {
@@ -631,17 +632,27 @@ const TrolleyProblemGame = () => {
         const isCurrentPlayerOnImpactedTeam =
             (railChosen === 'A' && gameData.teamA.includes(currentPlayer)) ||
             (railChosen === 'B' && gameData.teamB.includes(currentPlayer));
+        const trainAudioRef = useRef(null);
 
         // Only trigger animation for players on the impacted team AND the driver
         // (The driver also needs to see the impact effect for the rail they chose)
         if (isCurrentPlayerOnImpactedTeam || currentPlayer === gameData.currentDriver) {
             setImpactedRailVisual(railChosen);
             setIsImpactAnimating(true);
+            if (trainAudioRef.current) {
+              trainAudioRef.current.play().catch(error => {
+                console.error("Error playing train sound: ", error);
+              })
+            }
 
             // Set a timeout to end the animation and clear the visual state
             setTimeout(() => {
                 setIsImpactAnimating(false);
                 setImpactedRailVisual(null);
+                if (trainAudioRef.current) {
+                  trainAudioRef.current.pause();
+                  trainAudioRef.current.currentTime = 0;
+                }
             }, 3000); // Animation duration (1.5 seconds)
         }
     }
@@ -649,6 +660,12 @@ const TrolleyProblemGame = () => {
     // gameData.teamA, gameData.teamB, gameData.currentDriver, or currentPlayer changes.
     // Ensure all variables from gameData used inside the effect are in the dependency array.
   }, [gameData?.selectedRail, gameData?.roundPhase, gameData?.teamA, gameData?.teamB, gameData?.currentDriver, currentPlayer]);
+
+  function playAudio() {
+    const audio = document.createElement("audio");
+    audio.src = "assets/train.mp3";
+    audio.play();
+  }
 
   // Home screen
   if (gameState === 'home') {
@@ -853,6 +870,7 @@ const TrolleyProblemGame = () => {
 
   return (
     <div className={styles.container}>
+      <audio ref={trainAudioRef} src="/assets/train.mp3" preload="auto" />
       <div className={styles.maxWidth2xl}>
         <div className={styles.cardSmall}>
           <div className={`${styles.textCenter} ${styles.mb4}`}>

@@ -632,7 +632,6 @@ const TrolleyProblemGame = () => {
         const isCurrentPlayerOnImpactedTeam =
             (railChosen === 'A' && gameData.teamA.includes(currentPlayer)) ||
             (railChosen === 'B' && gameData.teamB.includes(currentPlayer));
-        const trainAudioRef = useRef(null);
 
         // Only trigger animation for players on the impacted team AND the driver
         // (The driver also needs to see the impact effect for the rail they chose)

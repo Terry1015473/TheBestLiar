@@ -457,9 +457,18 @@ const BestLiarGame = () => {
     return () => unsub();
   }, [roomCode, currentPlayer]);
 
-  // useEffect(() => {
-  //   if(wtfCards)
-  // })
+  useEffect(() => {
+    if(wtfCards[currentPlayer] && gameState === 'playing') {
+      const wtFTimestamp = wtfCards[currentPlayer];
+      if (Date.now() - wtFTimestamp < 3000) {
+        setShowFullScreenWtf(true);
+        const timer = setTimeout(() => {
+          setShowFullScreenWtf(false);
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [wtfCards, currentPlayer, gameState]);
 
   if (gameState === 'home') {
     return (
@@ -578,149 +587,156 @@ const BestLiarGame = () => {
 
   if (gameState === 'playing') {
     return (
-      <div className={styles.container}>
-        <div className={styles.maxWidth2xl}>
-          <div className={styles.cardSmall}>
-            <div className={`${styles.textCenter} ${styles.mb6}`}>
-              <h2 className={styles.heading}>Round {currentRound}</h2>
-              <div className={`${styles.flexCenter} ${styles.mt2}`}>
-                <Eye className={styles.icon} />
-                <span className={styles.textGray}>Room: {roomCode}</span>
-              </div>
-            </div>
-            
-            <div className={`${styles.grid} ${styles.gridCols1} ${styles.gridColsMd2} ${styles.gap6} ${styles.mb6}`}>
-              <div className={styles.roleCard}>
-                <h3 className={styles.subheading}>你的身分</h3>
-                <p className={`${styles.textLarge} ${getPlayerRoleColor()}`}>
-                  {getPlayerRole()}
-                </p>
-              </div>
-              
-              <div className={styles.roleCard}>
-                <h3 className={styles.subheading}>題目</h3>
-                <p className={styles.textLarge}>{currentWord?.word}</p>
-                {currentPlayer === honestPlayer && (
-                  <p className={`${styles.textGreen} ${styles.mt1}`} style={{fontSize: '0.875rem'}}>
-                    {currentWord?.meaning}
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            {currentPlayer === listener && roundPhase === 'playing' && (
-              <div className={styles.mb6}>
-                <h3 className={`${styles.subheading} ${styles.mb3}`}>
-                  已寄出的公三小 ({wtfCardsUsed}/{players.length})
-                </h3>
-                <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
-                  {players.filter(p => p !== listener).map(player => (
-                    <button
-                      key={player}
-                      onClick={() => sendWtfCard(player)}
-                      disabled={wtfCardsUsed >= players.length || wtfCards[player]}
-                      className={`${styles.buttonWtf} ${
-                        wtfCards[player] 
-                          ? styles.buttonWtfActive
-                          : styles.buttonWtfInactive
-                      }`}
-                    >
-                      {wtfCards[player] ? '❌' : '🎯'} {player}
-                    </button>
-                  ))}
+      <div className={styles.gameWrapper}>
+        {showFullScreenWtf && (
+          <div className={styles.wtfOverlay}>
+            <img src="/assets/wtf-card.png" alt="WTF!" className={styles.wtfImage} />
+          </div>
+        )}
+        <div className={styles.container}>
+          <div className={styles.maxWidth2xl}>
+            <div className={styles.cardSmall}>
+              <div className={`${styles.textCenter} ${styles.mb6}`}>
+                <h2 className={styles.heading}>Round {currentRound}</h2>
+                <div className={`${styles.flexCenter} ${styles.mt2}`}>
+                  <Eye className={styles.icon} />
+                  <span className={styles.textGray}>Room: {roomCode}</span>
                 </div>
               </div>
-            )}
-            
-            <div className={styles.mb6}>
-              <h3 className={`${styles.subheading} ${styles.mb3}`}>Scores</h3>
-              <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
-                {players.map(player => (
-                  <div key={player} className={styles.scoreItem}>
-                    <span className={styles.playerName}>
-                      {player}
-                      {displayWtfOnPlayer === player && (
-                        <div className={`${styles.wtfIcon} `}>
-                          ❓
-                        </div>
-                      )}
-                      </span>
-                    <span className={styles.score}>{playerScores[player] || 0}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {roundPhase === 'playing' && isRoomHead && (
-              <div className={styles.textCenter}>
-                <button
-                  onClick={endRound}
-                  className={`${styles.button} ${styles.buttonWarning} ${styles.px6} ${styles.py3}`}
-                >
-                  End Round
-                </button>
-                <button
-                  onClick={leaveRoom}
-                  className={`${styles.button} ${styles.buttonSecondary} ${styles.buttonLeave}`}
-                >
-                  Leave the room
-                </button>
-
-              </div>
-            )}
-            
-            {roundPhase === 'ended' && (
-              <div className={`${styles.textCenter} ${styles.spaceY4}`}>
-                <div className={styles.resultCard}>
-                  <h3 className={`${styles.title} ${styles.mb2}`}>Round Results</h3>
-                  <p className={styles.content}>
-                    聆聽者: {listener} | 老實人: {honestPlayer}
+              
+              <div className={`${styles.grid} ${styles.gridCols1} ${styles.gridColsMd2} ${styles.gap6} ${styles.mb6}`}>
+                <div className={styles.roleCard}>
+                  <h3 className={styles.subheading}>你的身分</h3>
+                  <p className={`${styles.textLarge} ${getPlayerRoleColor()}`}>
+                    {getPlayerRole()}
                   </p>
-                  {Object.keys(wtfCards).length > 0 && (
-                    <p className={styles.content}>
-                      被公三小: {Object.keys(wtfCards).join(', ')}
+                </div>
+                
+                <div className={styles.roleCard}>
+                  <h3 className={styles.subheading}>題目</h3>
+                  <p className={styles.textLarge}>{currentWord?.word}</p>
+                  {currentPlayer === honestPlayer && (
+                    <p className={`${styles.textGreen} ${styles.mt1}`} style={{fontSize: '0.875rem'}}>
+                      {currentWord?.meaning}
                     </p>
                   )}
                 </div>
-                
-                {isRoomHead && (
-                  <>
-                    {usedListeners.length < players.length ? (
-                      <button
-                        onClick={nextRound}
-                        className={`${styles.button} ${styles.buttonSuccess} ${styles.px6} ${styles.py3}`}
-                      >
-                        Next Round
-                      </button>
-                    ) : (
-                      <button
-                        onClick={async () => {
-                          const roomRef = doc(db, "rooms", roomCode);
-                          await updateDoc(roomRef, { gameState: 'ended' });
-                        }}
-                        className={`${styles.button} ${styles.buttonPrimary} ${styles.px6} ${styles.py3}`}
-                      >
-                        End Game
-                      </button>
-                    )}
-                  </>
-                )}
-                
-                {!isRoomHead && (
-                  <p className={styles.textGray}>Waiting for host to continue...</p>  
-                )}
               </div>
-            )}
-            {!isRoomHead && (
-              <>
-                <button
-                  onClick={leaveRoom}
-                  className={`${styles.button} ${styles.buttonSecondary} ${styles.buttonLeave}`}
-                >
-                  Leave the room
-                </button>                    
-              </>  
-            )}          
+              
+              {currentPlayer === listener && roundPhase === 'playing' && (
+                <div className={styles.mb6}>
+                  <h3 className={`${styles.subheading} ${styles.mb3}`}>
+                    已寄出的公三小 ({wtfCardsUsed}/{players.length})
+                  </h3>
+                  <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
+                    {players.filter(p => p !== listener).map(player => (
+                      <button
+                        key={player}
+                        onClick={() => sendWtfCard(player)}
+                        disabled={wtfCardsUsed >= players.length || wtfCards[player]}
+                        className={`${styles.buttonWtf} ${
+                          wtfCards[player] 
+                            ? styles.buttonWtfActive
+                            : styles.buttonWtfInactive
+                        }`}
+                      >
+                        {wtfCards[player] ? '❌' : '🎯'} {player}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className={styles.mb6}>
+                <h3 className={`${styles.subheading} ${styles.mb3}`}>Scores</h3>
+                <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
+                  {players.map(player => (
+                    <div key={player} className={styles.scoreItem}>
+                      <span className={styles.playerName}>
+                        {player}
+                        {displayWtfOnPlayer === player && (
+                          <div className={`${styles.wtfIcon} `}>
+                            ❓
+                          </div>
+                        )}
+                        </span>
+                      <span className={styles.score}>{playerScores[player] || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {roundPhase === 'playing' && isRoomHead && (
+                <div className={styles.textCenter}>
+                  <button
+                    onClick={endRound}
+                    className={`${styles.button} ${styles.buttonWarning} ${styles.px6} ${styles.py3}`}
+                  >
+                    End Round
+                  </button>
+                  <button
+                    onClick={leaveRoom}
+                    className={`${styles.button} ${styles.buttonSecondary} ${styles.buttonLeave}`}
+                  >
+                    Leave the room
+                  </button>
+
+                </div>
+              )}
+              
+              {roundPhase === 'ended' && (
+                <div className={`${styles.textCenter} ${styles.spaceY4}`}>
+                  <div className={styles.resultCard}>
+                    <h3 className={`${styles.title} ${styles.mb2}`}>Round Results</h3>
+                    <p className={styles.content}>
+                      聆聽者: {listener} | 老實人: {honestPlayer}
+                    </p>
+                    {Object.keys(wtfCards).length > 0 && (
+                      <p className={styles.content}>
+                        被公三小: {Object.keys(wtfCards).join(', ')}
+                      </p>
+                    )}
+                  </div>
+                  
+                  {isRoomHead && (
+                    <>
+                      {usedListeners.length < players.length ? (
+                        <button
+                          onClick={nextRound}
+                          className={`${styles.button} ${styles.buttonSuccess} ${styles.px6} ${styles.py3}`}
+                        >
+                          Next Round
+                        </button>
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            const roomRef = doc(db, "rooms", roomCode);
+                            await updateDoc(roomRef, { gameState: 'ended' });
+                          }}
+                          className={`${styles.button} ${styles.buttonPrimary} ${styles.px6} ${styles.py3}`}
+                        >
+                          End Game
+                        </button>
+                      )}
+                    </>
+                  )}
+                  
+                  {!isRoomHead && (
+                    <p className={styles.textGray}>Waiting for host to continue...</p>  
+                  )}
+                </div>
+              )}
+              {!isRoomHead && (
+                <>
+                  <button
+                    onClick={leaveRoom}
+                    className={`${styles.button} ${styles.buttonSecondary} ${styles.buttonLeave}`}
+                  >
+                    Leave the room
+                  </button>                    
+                </>  
+              )}          
+            </div>
           </div>
         </div>
       </div>

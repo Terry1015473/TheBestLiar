@@ -207,7 +207,7 @@ const BestLiarGame = () => {
       setDisplayWtfOnPlayer(targetPlayer);
       setTimeout(() => {
         setDisplayWtfOnPlayer(null);
-      }, 5000);
+      }, 10000);
     } catch (error) {
       console.error("Error sending WTF card:", error);
     }
@@ -457,9 +457,18 @@ const BestLiarGame = () => {
     return () => unsub();
   }, [roomCode, currentPlayer]);
 
-  // useEffect(() => {
-  //   if(wtfCards)
-  // })
+  useEffect(() => {
+    if(wtfCards[currentPlayer] && gameState === 'playing') {
+      const wtFTimestamp = wtfCards[currentPlayer];
+      if (Date.now() - wtFTimestamp < 3000) {
+        setShowFullScreenWtf(true);
+        const timer = setTimeout(() => {
+          setShowFullScreenWtf(false);
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [wtfCards, currentPlayer, gameState]);
 
   if (gameState === 'home') {
     return (
@@ -579,6 +588,11 @@ const BestLiarGame = () => {
   if (gameState === 'playing') {
     return (
       <div className={styles.container}>
+        {showFullScreenWtf && (
+            <div className={styles.wtfOverlay}>
+              <img src="/assets/wtf-card.png" alt="WTF!" className={styles.wtfImage} />
+            </div>
+        )};
         <div className={styles.maxWidth2xl}>
           <div className={styles.cardSmall}>
             <div className={`${styles.textCenter} ${styles.mb6}`}>
@@ -611,7 +625,7 @@ const BestLiarGame = () => {
             {currentPlayer === listener && roundPhase === 'playing' && (
               <div className={styles.mb6}>
                 <h3 className={`${styles.subheading} ${styles.mb3}`}>
-                  已寄出的公三小 ({wtfCardsUsed}/{players.length})
+                  已寄出的公三小 ({wtfCardsUsed}/{players.length -1 })
                 </h3>
                 <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
                   {players.filter(p => p !== listener).map(player => (
@@ -639,11 +653,11 @@ const BestLiarGame = () => {
                   <div key={player} className={styles.scoreItem}>
                     <span className={styles.playerName}>
                       {player}
-                      {displayWtfOnPlayer === player && (
+                      {/* {displayWtfOnPlayer === player && (
                         <div className={`${styles.wtfIcon} `}>
                           ❓
                         </div>
-                      )}
+                      )} */}
                       </span>
                     <span className={styles.score}>{playerScores[player] || 0}</span>
                   </div>

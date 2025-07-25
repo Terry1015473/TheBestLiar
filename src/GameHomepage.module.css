@@ -83,6 +83,10 @@
   background: #bfdbfe;
 }
 
+.sillygooseIconWrapper {
+  background: #ffefae;
+}
+
 .icon {
   width: 2rem;
   height: 2rem;
@@ -91,6 +95,10 @@
 
 .trolleyIconWrapper .icon {
   color: #2563eb;
+}
+
+.sillygooseIconWrapper .icon {
+  color: #eab308;
 }
 
 /* Game Title */
@@ -160,6 +168,14 @@
 
 .trolleyButton:hover {
   background: #2563eb;
+}
+
+.sillygooseButton {
+  background: #facc15;
+}
+
+.sillygooseButton:hover {
+  background: #eab308;
 }
 
 .buttonIcon {

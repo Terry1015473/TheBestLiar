@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Users, Train, Crown, Award, Play } from 'lucide-react';
+import { Users, Train, Crown, Award, Play, Bird } from 'lucide-react';
 import styles from './GameHomepage.module.css';
 
 // Mock components for demonstration - replace with your actual imports
 import BestLiarGame from './BestLiarGame';
 import TrolleyProblemGame from './TrolleyProblemGame ';
+import SillyGooseGame from './SillyGooseGame';
 
 const GameHomepage = () => {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -15,6 +16,10 @@ const GameHomepage = () => {
 
   if (selectedGame === 'trolley') {
     return <TrolleyProblemGame />;
+  }
+
+  if (selectedGame === 'sillygoose') {
+    return <SillyGooseGame />;
   }
 
   return (
@@ -113,6 +118,51 @@ const GameHomepage = () => {
               </div>
             </div>
           </div>
+
+          {/* Silly Goose Game */}
+          <div 
+            onClick={() => setSelectedGame('sillygoose')}
+            className={`${styles.gameCard} ${styles.sillygooseCard}`}
+          >
+            <div className={styles.cardContent}>
+              <div className={styles.iconContainer}>
+                <div className={`${styles.iconWrapper} ${styles.sillygooseIconWrapper}`}>
+                  <Bird className={styles.icon} />
+                </div>
+              </div>
+              
+              <h2 className={styles.gameTitle}>
+                誰是糊塗鬼
+              </h2>
+              
+              <p className={styles.gameDescription}>
+                糊塗鬼總是喜歡裝傻，雖然讓人火大，
+                但說到底，那也只是「裝」的。
+                不像你身旁的隊友——他是真的傻。
+              </p>
+              
+              <div className={styles.gameFeatures}>
+                <div className={styles.feature}>
+                  <Users className={styles.featureIcon} />
+                  <span>4 Players</span>
+                </div>
+                <div className={styles.feature}>
+                  <Award className={styles.featureIcon} />
+                  <span>Cooperation & Suspicion</span>
+                </div>
+              </div>
+              
+              <div className={styles.buttonContainer}>
+                <button className={`${styles.playButton} ${styles.sillygooseButton}`}>
+                  <Play className={styles.buttonIcon} />
+                  Play Now
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 4th game */}
+
         </div>
 
         {/* Footer */}

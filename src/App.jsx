@@ -118,7 +118,8 @@ const GameHomepage = () => {
         {/* Footer */}
         <div className={styles.footer}>
           <p className={styles.footerText}>
-            Choose a game above to get started. Gather your friends and let the fun begin!
+            Choose a game above to get started. Gather your friends and let the fun begin! <br />
+            瑞登食品集團開發
           </p>
         </div>
       </div>

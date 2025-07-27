@@ -432,7 +432,7 @@ const TrolleyProblemGame = () => {
     };
 
     // Add stateCardApplied: null to the person card when it's initially placed
-    const newPersonCardOnRail = { ...cardObject, stateCardApplied: null };
+    const newPersonCardOnRail = { ...cardObject, stateCardApplied: [] };
     const newRail = [...currentRailContent, newPersonCardOnRail];
     
     // Update the specific rail and player hands in the database
@@ -473,17 +473,22 @@ const TrolleyProblemGame = () => {
       return;
     }
 
-    // Check if a state card is already applied to this person card
-    if (currentRail[targetCardIndex].stateCardApplied) {
-        alert("A state card is already applied to this person.");
+    // NEW: Check if this specific state card is already applied to this person
+    const alreadyApplied = (currentRail[targetCardIndex].stateCardApplied || []).some(
+      (appliedCard) => appliedCard.id === selectedStateCardToApply.id
+    );
+
+    if (alreadyApplied) {
+        alert("This specific state card is already applied to this person.");
         setSelectedStateCardToApply(null); // Reset targeting mode
         return;
     }
 
     const updatedRail = [...currentRail];
+    // NEW: Append the new state card to the stateCardApplied array
     updatedRail[targetCardIndex] = {
       ...updatedRail[targetCardIndex],
-      stateCardApplied: selectedStateCardToApply, // Apply the state card object
+      stateCardApplied: [...(updatedRail[targetCardIndex].stateCardApplied || []), selectedStateCardToApply],
     };
 
     // Remove the state card from the player's hand
@@ -518,12 +523,11 @@ const TrolleyProblemGame = () => {
     }
     const cardToRemove = currentRail[cardIndex];
 
-    // --- NEW: Prevent removal if card is systemPlaced ---
+    // --- Prevent removal if card is systemPlaced ---
     if (cardToRemove.systemPlaced) {
         alert("This card was placed by the system and cannot be removed.");
         return;
     }
-    // --- END NEW ---
 
     // Add confirmation dialog
     const confirmed = window.confirm("Do you really want to remove this card?");
@@ -563,7 +567,8 @@ const TrolleyProblemGame = () => {
         id: cardToRemove.id,
         name: cardToRemove.name,
         type: cardToRemove.type,
-        character: cardToRemove.character
+        character: cardToRemove.character,
+        stateCardApplied: [] // Reset state cards when returning to hand
     };
     const updatedPlayerHand = [...gameData.playerHands[currentPlayer], cardForHand];
     const updatedPlayerHands = {
@@ -1002,19 +1007,20 @@ const TrolleyProblemGame = () => {
                       key={card.id}
                       className={`${styles.personCard} ${card.character === 'good' ? styles.goodPersonCard : styles.badPersonCard} ${card.systemPlaced ? styles.systemPlacedCard : ''} ${selectedStateCardToApply && card.type === 'person' ? styles.targetableCard : ''} ${isRemovable ? styles.removableCard : ''}`}
                       onClick={() => {
-                        if (selectedStateCardToApply && card.type === 'person') {
-                          applyStateCardToPerson('railA', card.id);
-                        } else if (isRemovable) {
-                          removePersonCardFromRail('railA', card.id);
-                        }
+                          if (selectedStateCardToApply && card.type === 'person') {
+                              applyStateCardToPerson('railA', card.id); // Or 'railB'
+                          } else if (isRemovable) {
+                              removePersonCardFromRail('railA', card.id); // Or 'railB'
+                          }
                       }}
                     >
                       {card.character === 'good' ? '😃' : '🤬'} {card.name}
-                      {card.stateCardApplied && (
-                        <div className={styles.stateCardAppliedBadge}>
-                          📜 {card.stateCardApplied.name}
-                        </div>
-                      )}
+                      {/* NEW: Iterate over the stateCardApplied array */}
+                      {(card.stateCardApplied || []).map((appliedStateCard, idx) => (
+                          <div key={idx} className={styles.stateCardAppliedBadge}>
+                              📜 {appliedStateCard.name}
+                          </div>
+                      ))}
                     </div>
                   );
                 })}
@@ -1050,19 +1056,20 @@ const TrolleyProblemGame = () => {
                       key={card.id}
                       className={`${styles.personCard} ${card.character === 'good' ? styles.goodPersonCard : styles.badPersonCard} ${card.systemPlaced ? styles.systemPlacedCard : ''} ${selectedStateCardToApply && card.type === 'person' ? styles.targetableCard : ''} ${isRemovable ? styles.removableCard : ''}`}
                       onClick={() => {
-                        if (selectedStateCardToApply && card.type === 'person') {
-                          applyStateCardToPerson('railB', card.id);
-                        } else if (isRemovable) {
-                          removePersonCardFromRail('railB', card.id);
-                        }
+                          if (selectedStateCardToApply && card.type === 'person') {
+                              applyStateCardToPerson('railA', card.id); // Or 'railB'
+                          } else if (isRemovable) {
+                              removePersonCardFromRail('railA', card.id); // Or 'railB'
+                          }
                       }}
                     >
                       {card.character === 'good' ? '😃' : '🤬'} {card.name}
-                      {card.stateCardApplied && (
-                        <div className={styles.stateCardAppliedBadge}>
-                          📜 {card.stateCardApplied.name}
-                        </div>
-                      )}
+                      {/* NEW: Iterate over the stateCardApplied array */}
+                      {(card.stateCardApplied || []).map((appliedStateCard, idx) => (
+                          <div key={idx} className={styles.stateCardAppliedBadge}>
+                              📜 {appliedStateCard.name}
+                          </div>
+                      ))}
                     </div>
                   );
                 })}

@@ -81,7 +81,7 @@ const ALL_BAD_PEOPLE = [
   "一個總是在電梯裡假裝講電話，然後大聲抱怨生活瑣事的人", "會把自己的手機鈴聲設定成最吵的音樂，而且從來不調靜音的人",
   "專門在公園裡大聲播放廣場舞音樂，還會邀請路人一起跳的大媽", "一位會把你Instagram所有舊照片都按讚，然後半夜傳訊息給你的人",
   "會把所有的購物袋都重複使用到破掉，然後把破掉的袋子塞給你的人", "專門在公車上假裝睡著，然後把頭靠在你肩膀上的陌生人",
-  "一個會在團體照中故意眨眼，毀掉所有完美合照的損友", "川普", "佛地魔 (哈利波特中的大反派)", "一個會把所有公共廁所衛生紙都捲走的阿姨",
+  "一個會在團體照中故意眨眼，毀掉所有完美合照的損友", "外星川普" , "一個會把所有公共廁所衛生紙都捲走的阿姨",
   "你隔壁那個每天半夜練聲樂的鄰居", "一個會把所有免費試用品都拿走，然後抱怨品質不好的人","生化史達林",
   "一位會在別人臉書生日貼文下，留超長的產品推銷訊息的人", "時間旅行者希特勒", "超級網紅賓拉登",
   "被駭客控制的，準備向全球發射垃圾郵件的超級電腦", "充滿食人魚的亞馬遜河流域",
@@ -462,50 +462,66 @@ const TrolleyProblemGame = () => {
     if (!roomCode || !selectedStateCardToApply || gameData.roundPhase !== 'building') return;
 
     const roomRef = doc(db, 'trolley_rooms', roomCode);
-    const currentRail = gameData[targetRailKey];
 
-    // Find the index of the target person card
+    // Fetch the latest game data directly before updating to avoid stale state
+    const docSnap = await getDoc(roomRef); // Use getDoc to fetch the latest state
+    if (!docSnap.exists()) {
+      alert("Room does not exist.");
+      setSelectedStateCardToApply(null);
+      return;
+    }
+
+    const latestGameData = docSnap.data().trolley; // Get the latest 'trolley' object
+    let currentRail = latestGameData[targetRailKey]; // Use the latest rail data
+    let currentPlayerHands = { ...latestGameData.playerHands };
+
+
     const targetCardIndex = currentRail.findIndex(card => card.id === targetCardId && card.type === 'person');
 
     if (targetCardIndex === -1) {
       alert("Selected card is not a valid target or not found.");
-      setSelectedStateCardToApply(null); // Reset targeting mode
+      setSelectedStateCardToApply(null);
       return;
     }
 
-    // NEW: Check if this specific state card is already applied to this person
-    const alreadyApplied = (currentRail[targetCardIndex].stateCardApplied || []).some(
+    const targetPersonCard = currentRail[targetCardIndex];
+    const appliedStateCards = targetPersonCard.stateCardApplied || [];
+
+    // Check if this specific state card is already applied to this person
+    const alreadyApplied = appliedStateCards.some(
       (appliedCard) => appliedCard.id === selectedStateCardToApply.id
     );
 
     if (alreadyApplied) {
         alert("This specific state card is already applied to this person.");
-        setSelectedStateCardToApply(null); // Reset targeting mode
+        setSelectedStateCardToApply(null);
         return;
     }
 
-    const updatedRail = [...currentRail];
-    // NEW: Append the new state card to the stateCardApplied array
-    updatedRail[targetCardIndex] = {
-      ...updatedRail[targetCardIndex],
-      stateCardApplied: [...(updatedRail[targetCardIndex].stateCardApplied || []), selectedStateCardToApply],
+    // Construct the updated person card
+    const updatedPersonCard = {
+      ...targetPersonCard,
+      stateCardApplied: [...appliedStateCards, selectedStateCardToApply],
     };
+
+    // Construct the updated rail array
+    const updatedRail = [...currentRail];
+    updatedRail[targetCardIndex] = updatedPersonCard;
 
     // Remove the state card from the player's hand
-    const updatedPlayerHand = gameData.playerHands[currentPlayer].filter(card => card.id !== selectedStateCardToApply.id);
-    const updatedPlayerHands = {
-        ...gameData.playerHands,
-        [currentPlayer]: updatedPlayerHand
-    };
+    const updatedPlayerHand = currentPlayerHands[currentPlayer].filter(
+      (card) => card.id !== selectedStateCardToApply.id
+    );
+    currentPlayerHands[currentPlayer] = updatedPlayerHand;
 
+    // Perform the update
     await updateDoc(roomRef, {
-      [`trolley.${targetRailKey}`]: updatedRail,
-      'trolley.playerHands': updatedPlayerHands,
-      'trolley.stateCardsUsed': gameData.stateCardsUsed + 1, // Increment the state cards used counter
+      [`trolley.${targetRailKey}`]: updatedRail, // Update the entire rail array
+      'trolley.playerHands': currentPlayerHands, // Update the entire playerHands object
+      'trolley.stateCardsUsed': latestGameData.stateCardsUsed + 1,
     });
 
     setSelectedStateCardToApply(null); // Exit targeting mode
-    // alert(`"${selectedStateCardToApply.name}" applied to "${currentRail[targetCardIndex].name}"!`);
   };
 
   // Function to remove a person card from the rail and return to hand

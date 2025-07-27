@@ -674,3 +674,80 @@
   height: 100%; 
   object-fit: contain;
 }
+
+/* --- Progress Bar Styles --- */
+.progressBarFillSkyBlue {
+    background-color: #86e0f0; /* Matches original textGreen color */
+}
+
+.progressBarFillGold {
+    background-color: #dff3a7; /* Matches original textGreen color */
+}
+
+.progressBarFillPink {
+    background-color: #f736ad; /* Matches original textGreen color */
+}
+
+.progressBarFillGreen {
+    background-color: #16a34a; /* Matches original textGreen color */
+}
+
+.progressBarFillRed {
+    background-color: #dc2626; /* Matches original textRed color */
+}
+
+.progressBarFillBlue {
+    background-color: #2563eb; /* Matches original textBlue color */
+}
+
+.progressBarFillPurple {
+    background-color: #7c3aed; /* Matches original textPurple color */
+}
+
+.progressBarFillYellow {
+    background-color: #d97706; /* Matches original textYellow color */
+}
+
+.progressBarFillGray {
+    background-color: #4b5563; /* Matches original textGray color */
+}
+
+.progressBarContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem; /* Space between each progress bar */
+    gap: 0.5rem; /* Space between label, bar, and value */
+    flex-wrap: nowrap; /* Prevent wrapping on smaller screens */
+}
+
+.progressBarLabel {
+    flex-basis: 120px; /* Fixed width for labels to align them */
+    flex-shrink: 0; /* Prevent shrinking */
+    text-align: right;
+    font-weight: 500;
+    color: var(--text-gray);
+    padding-right: 0.5rem; /* Space between label and bar */
+}
+
+.progressBarBackground {
+    flex-grow: 1; /* Allow the bar to take up remaining space */
+    background-color: var(--color-gray-200);
+    border-radius: 9999px; /* Pill shape */
+    height: 12px;
+    overflow: hidden; /* Ensures the filled part stays within the rounded background */
+}
+
+.progressBarFill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.3s ease-in-out; /* Smooth animation when value changes */
+}
+
+.progressBarValue {
+    flex-basis: 50px; /* Fixed width for value text (e.g., "100%") */
+    flex-shrink: 0; /* Prevent shrinking */
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-color); /* General text color */
+    padding-left: 0.5rem; /* Space between bar and value */
+}

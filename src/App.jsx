@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Users, Train, Crown, Award, Play, Bird } from 'lucide-react';
+import { Users, Train, Crown, Award, Play, Bird, Earth } from 'lucide-react';
 import styles from './GameHomepage.module.css';
 
 // Mock components for demonstration - replace with your actual imports
 import BestLiarGame from './BestLiarGame';
 import TrolleyProblemGame from './TrolleyProblemGame ';
 import SillyGooseGame from './SillyGooseGame';
+import TheWorld from './TheWorld';
+import './i18n'; // <--- Make sure this is imported
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n'; // <--- Make sure this is imported
 
 const GameHomepage = () => {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -20,6 +24,10 @@ const GameHomepage = () => {
 
   if (selectedGame === 'sillygoose') {
     return <SillyGooseGame />;
+  }
+
+  if (selectedGame === 'TheWorld'){
+    return <TheWorld />;
   }
 
   return (
@@ -161,7 +169,48 @@ const GameHomepage = () => {
             </div>
           </div>
 
-          {/* 4th game */}
+          {/* The World */}
+          <div 
+            onClick={() => setSelectedGame('TheWorld')}
+            className={`${styles.gameCard} ${styles.theWorldCard}`}
+          >
+            <div className={styles.cardContent}>
+              <div className={styles.iconContainer}>
+                <div className={`${styles.iconWrapper} ${styles.theWorldIconWrapper}`}>
+                  <Earth className={styles.icon} />
+                </div>
+              </div>
+              
+              <h2 className={styles.gameTitle}>
+                The World
+              </h2>
+              
+              <p className={styles.gameDescription}>
+                Still Testing
+              </p>
+              
+              <div className={styles.gameFeatures}>
+                <div className={styles.feature}>
+                  <Users className={styles.featureIcon} />
+                  <span>6 Players</span>
+                </div>
+                <div className={styles.feature}>
+                  <Award className={styles.featureIcon} />
+                  <span>Cooperation? and Suspicion? or Selfish</span>
+                </div>
+              </div>
+              
+              <div className={styles.buttonContainer}>
+                <button className={`${styles.playButton} ${styles.theWorldButton}`}>
+                  <Play className={styles.buttonIcon} />
+                  Play Now
+                </button>
+              </div>
+            </div>
+          </div>          
+
+          {/* 5th game */}
+
 
         </div>
 
@@ -176,5 +225,11 @@ const GameHomepage = () => {
     </div>
   );
 };
+
+const App = () => (
+  <I18nextProvider i18n={i18n}>
+    <GameHomepage />
+  </I18nextProvider>
+);
 
 export default GameHomepage;

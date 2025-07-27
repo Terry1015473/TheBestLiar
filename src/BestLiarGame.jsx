@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Crown, Eye, MessageCircle, Award, Play, RotateCcw } from 'lucide-react';
+import { Users, Crown, Eye, MessageCircle, Award, Play, RotateCcw, Target } from 'lucide-react';
 import styles from './BestLiarGame.module.css';
 import { db } from './firebase';
 import {
@@ -105,6 +105,10 @@ const BestLiarGame = () => {
   const [wtfCardsUsed, setWtfCardsUsed] = useState(0);
   const [displayWtfOnPlayer, setDisplayWtfOnPlayer] = useState(null);
   const [showFullScreenWtf, setShowFullScreenWtf] = useState(false);
+  
+  // New state for honest player guess
+  const [honestPlayerGuess, setHonestPlayerGuess] = useState('');
+  const [hasGuessedHonestPlayer, setHasGuessedHonestPlayer] = useState(false);
 
   const generateRoomCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -137,7 +141,9 @@ const BestLiarGame = () => {
         wtfCards: {},
         usedListeners: [],
         roundPhase: 'playing',
-        wtfCardsUsed: 0
+        wtfCardsUsed: 0,
+        honestPlayerGuess: '', // New field
+        hasGuessedHonestPlayer: false // New field
       });
 
       setRoomCode(code);
@@ -214,6 +220,8 @@ const BestLiarGame = () => {
           wtfCardsUsed: 0,
           wtfCards: {},
           usedListeners: data.usedListeners || [],
+          honestPlayerGuess: '', // Reset guess
+          hasGuessedHonestPlayer: false // Reset guess status
         });
       } else {
         alert("Need at least 3 players to start!");
@@ -244,6 +252,22 @@ const BestLiarGame = () => {
     }
   };
 
+  // New function to guess honest player
+  const guessHonestPlayer = async (guessedPlayer) => {
+    if (currentPlayer !== listener || hasGuessedHonestPlayer) return;
+    
+    const roomRef = doc(db, "rooms", roomCode);
+    
+    try {
+      await updateDoc(roomRef, {
+        honestPlayerGuess: guessedPlayer,
+        hasGuessedHonestPlayer: true
+      });
+    } catch (error) {
+      console.error("Error guessing honest player:", error);
+    }
+  };
+
   const endRound = async () => {
     if (!isRoomHead) return;
     
@@ -261,6 +285,11 @@ const BestLiarGame = () => {
         newScores[listener] = (newScores[listener] || 0) + 1;
       }
     });
+    
+    // Check honest player guess bonus
+    if (honestPlayerGuess === honestPlayer) {
+      newScores[listener] = (newScores[listener] || 0) + 2;
+    }
     
     // Liars who weren't found get points
     players.forEach(player => {
@@ -311,7 +340,9 @@ const BestLiarGame = () => {
         currentWord: randomWord,
         roundPhase: "playing",
         wtfCardsUsed: 0,
-        wtfCards: {}
+        wtfCards: {},
+        honestPlayerGuess: '', // Reset guess
+        hasGuessedHonestPlayer: false // Reset guess status
       });
     } catch (error) {
       console.error("Error starting next round:", error);
@@ -379,6 +410,8 @@ const BestLiarGame = () => {
           updateData.roundPhase = 'playing';
           updateData.wtfCardsUsed = 0;
           updateData.currentRound = 1;
+          updateData.honestPlayerGuess = '';
+          updateData.hasGuessedHonestPlayer = false;
         } else if (needsNewRound) {
           // Start a new round with remaining players
           const availableListeners = updatedPlayers.filter(p => !updatedUsedListeners.includes(p));
@@ -394,6 +427,8 @@ const BestLiarGame = () => {
             updateData.wtfCards = {};
             updateData.wtfCardsUsed = 0;
             updateData.roundPhase = 'playing';
+            updateData.honestPlayerGuess = '';
+            updateData.hasGuessedHonestPlayer = false;
           } else {
             // All players have been listeners, end the game
             updateData.gameState = 'ended';
@@ -427,6 +462,8 @@ const BestLiarGame = () => {
     setRoundPhase('playing');
     setWtfCardsUsed(0);
     setShowFullScreenWtf(false);
+    setHonestPlayerGuess('');
+    setHasGuessedHonestPlayer(false);
   };
 
   const resetGame = () => {
@@ -477,6 +514,8 @@ const BestLiarGame = () => {
         setRoundPhase(data.roundPhase || 'playing');
         setWtfCardsUsed(data.wtfCardsUsed || 0);
         setCurrentRound(data.currentRound || 1);
+        setHonestPlayerGuess(data.honestPlayerGuess || '');
+        setHasGuessedHonestPlayer(data.hasGuessedHonestPlayer || false);
         
         // Check if current player is room head (first player)
         if (data.players && data.players.length > 0) {
@@ -654,27 +693,63 @@ const BestLiarGame = () => {
             </div>
             
             {currentPlayer === listener && roundPhase === 'playing' && (
-              <div className={styles.mb6}>
-                <h3 className={`${styles.subheading} ${styles.mb3}`}>
-                  已寄出的公三小 ({wtfCardsUsed}/{players.length -1 })
-                </h3>
-                <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
-                  {players.filter(p => p !== listener).map(player => (
-                    <button
-                      key={player}
-                      onClick={() => sendWtfCard(player)}
-                      disabled={wtfCardsUsed >= players.length || wtfCards[player]}
-                      className={`${styles.buttonWtf} ${
-                        wtfCards[player] 
-                          ? styles.buttonWtfActive
-                          : styles.buttonWtfInactive
-                      }`}
-                    >
-                      {wtfCards[player] ? '❌' : '🎯'} {player}
-                    </button>
-                  ))}
+              <>
+                <div className={styles.mb6}>
+                  <h3 className={`${styles.subheading} ${styles.mb3}`}>
+                    已寄出的公三小 ({wtfCardsUsed}/{players.length -1 })
+                  </h3>
+                  <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
+                    {players.filter(p => p !== listener).map(player => (
+                      <button
+                        key={player}
+                        onClick={() => sendWtfCard(player)}
+                        disabled={wtfCardsUsed >= players.length || wtfCards[player]}
+                        className={`${styles.buttonWtf} ${
+                          wtfCards[player] 
+                            ? styles.buttonWtfActive
+                            : styles.buttonWtfInactive
+                        }`}
+                      >
+                        {wtfCards[player] ? '❌' : '🎯'} {player}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+
+                {/* New Honest Player Guess Section */}
+                <div className={styles.mb6}>
+                  <h3 className={`${styles.subheading} ${styles.mb3}`}>
+                    猜測老實人 (+2 分獎勵)
+                    {honestPlayerGuess && (
+                      <span className={styles.textGreen}> - 已猜測: {honestPlayerGuess}</span>
+                    )}
+                  </h3>
+                  <div className={`${styles.grid} ${styles.gridCols2} ${styles.gap2}`}>
+                    {players.filter(p => p !== listener).map(player => (
+                      <button
+                        key={player}
+                        onClick={() => guessHonestPlayer(player)}
+                        disabled={hasGuessedHonestPlayer}
+                        className={`${styles.buttonWtf} ${
+                          honestPlayerGuess === player
+                            ? styles.buttonWtfActive
+                            : hasGuessedHonestPlayer
+                            ? styles.buttonWtfDisabled
+                            : styles.buttonWtfInactive
+                        }`}
+                      >
+                        <Target className={styles.icon} />
+                        {player}
+                      </button>
+                    ))}
+                  </div>
+                  {hasGuessedHonestPlayer && (
+                    <p className={`${styles.textGray} ${styles.mt2}`} style={{fontSize: '0.875rem'}}>
+                      你已經做出猜測，將在回合結束時揭曉結果
+                    </p>
+                  )}
+                </div>
+              </>
             )}
             
             <div className={styles.mb6}>
@@ -684,11 +759,6 @@ const BestLiarGame = () => {
                   <div key={player} className={styles.scoreItem}>
                     <span className={styles.playerName}>
                       {player}
-                      {/* {displayWtfOnPlayer === player && (
-                        <div className={`${styles.wtfIcon} `}>
-                          ❓
-                        </div>
-                      )} */}
                       </span>
                     <span className={styles.score}>{playerScores[player] || 0}</span>
                   </div>
@@ -724,6 +794,15 @@ const BestLiarGame = () => {
                   {Object.keys(wtfCards).length > 0 && (
                     <p className={styles.content}>
                       被公三小: {Object.keys(wtfCards).join(', ')}
+                    </p>
+                  )}
+                  {honestPlayerGuess && (
+                    <p className={`${styles.content} ${
+                      honestPlayerGuess === honestPlayer ? styles.textGreen : styles.textRed
+                    }`}>
+                      聆聽者猜測: {honestPlayerGuess} {
+                        honestPlayerGuess === honestPlayer ? '✓ 正確 (+2分)' : '✗ 錯誤'
+                      }
                     </p>
                   )}
                 </div>

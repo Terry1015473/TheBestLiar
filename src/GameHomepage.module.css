@@ -87,6 +87,10 @@
   background: #ffefae;
 }
 
+.theWorldIconWrapper {
+  background: #5fc7f0;
+}
+
 .icon {
   width: 2rem;
   height: 2rem;
@@ -99,6 +103,10 @@
 
 .sillygooseIconWrapper .icon {
   color: #eab308;
+}
+
+.theWorldIconWrapper .icon {
+  color: rgb(8, 245, 20);
 }
 
 /* Game Title */
@@ -176,6 +184,13 @@
 
 .sillygooseButton:hover {
   background: #eab308;
+}
+
+.theWorldButton {
+  background:#3dee55;
+}
+.theWorldButton:hover {
+  background: #07a71d;
 }
 
 .buttonIcon {

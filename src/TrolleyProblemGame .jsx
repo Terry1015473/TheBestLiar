@@ -270,7 +270,7 @@ const TrolleyProblemGame = () => {
         }
         
         // Check if room is full
-        if (data.players.length >= 10) {
+        if (data.players.length >= 15) {
           alert("Room is full!");
           return;
         }

@@ -352,7 +352,7 @@ const TheWorld = () => {
             }
         };
 
-        const apiKey = ""; // Replace with secure method in production
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // Replace with secure method in production
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         try {

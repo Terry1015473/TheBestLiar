@@ -318,74 +318,73 @@ const TrolleyProblemGame = () => {
     const roomRef = doc(db, 'trolley_rooms', roomCode);
     const snap = await getDoc(roomRef);
     const roomData = snap.data();
-    const roomPlayers = roomData.players;
+    const roomPlayers = roomData.players; // Current players in the room
+    const currentTrolleyData = roomData.trolley; // Get existing trolley data
 
     if (roomPlayers.length < 3) {
       alert('Need at least 3 players (1 driver + 2 teams)');
       return;
     }
 
-    // Shuffle players and assign roles
-    const shuffledPlayers = [...roomPlayers].sort(() => Math.random() - 0.5);
-    const driver = shuffledPlayers[0];
-    const remainingPlayers = shuffledPlayers.slice(1);
+    // --- Driver Selection Logic ---
+    let nextDriver;
+    const lastDriver = currentTrolleyData?.currentDriver;
+
+    if (lastDriver && roomPlayers.includes(lastDriver)) {
+        // If there was a last driver and they are still in the room
+        const lastDriverIndex = roomPlayers.indexOf(lastDriver);
+        nextDriver = roomPlayers[(lastDriverIndex + 1) % roomPlayers.length];
+    } else {
+        // First round, or last driver left, or last driver not found, pick a random starting driver
+        const shuffledAvailablePlayers = [...roomPlayers].sort(() => Math.random() - 0.5);
+        nextDriver = shuffledAvailablePlayers[0];
+    }
+
+    // Ensure the new driver isn't the same as the last *if possible and if there are enough players*
+    // This is handled by the cyclical selection. If there's only 1 non-driver, they will be driver again.
+    // With 3+ players, cyclical ensures a new driver each time until the cycle repeats.
+
+
+    const remainingPlayers = roomPlayers.filter(p => p !== nextDriver); // Filter out the new driver for teams
 
     // Split remaining players into two teams as evenly as possible
     const teamASize = Math.ceil(remainingPlayers.length / 2);
     const teamA = remainingPlayers.slice(0, teamASize);
     const teamB = remainingPlayers.slice(teamASize);
 
-    // --- NEW CARD GENERATION AND DISTRIBUTION LOGIC ---
+    // --- NEW CARD GENERATION AND DISTRIBUTION LOGIC (Remains the same as our last discussion) ---
 
-    // 1. Create a master pool of ALL unique cards needed for the round
-    //    We need:
-    //    - 2 good people for systemPlaced cards
-    //    - (num_non_drivers) * 3 good people
-    //    - (num_non_drivers) * 3 bad people
-    //    - (num_non_drivers) * 3 state cards (based on your current logic of 3 state cards per player)
-
-    const numNonDrivers = roomPlayers.length - 1;
+    const numNonDrivers = roomPlayers.length - 1; // This is (roomPlayers.length - 1) which is now correct
     const cardsPerPlayer = 9; // 3 good, 3 bad, 3 state cards
 
-    // Ensure ALL_GOOD_PEOPLE, ALL_BAD_PEOPLE, ALL_STATE_CARDS are defined globally
-    // with each card having a unique ID (e.g., using uuidv4 when initially creating these arrays)
+    let allAvailableCards = []; // Not used, can be removed
 
-    let allAvailableCards = [];
-
-    // Add good people cards (ensure enough unique ones for system and player hands)
-    // Create new instances for safety in case ALL_GOOD_PEOPLE has duplicates by name
     const goodPeoplePool = [...ALL_GOOD_PEOPLE].map(card => ({ ...card, id: uuidv4() }));
     const badPeoplePool = [...ALL_BAD_PEOPLE].map(card => ({ ...card, id: uuidv4() }));
     const stateCardsPool = [...ALL_STATE_CARDS].map(card => ({ ...card, id: uuidv4() }));
 
-    // Shuffle these pools initially to pick from
     const shuffledGoodPeoplePool = [...goodPeoplePool].sort(() => Math.random() - 0.5);
     const shuffledBadPeoplePool = [...badPeoplePool].sort(() => Math.random() - 0.5);
     const shuffledStateCardsPool = [...stateCardsPool].sort(() => Math.random() - 0.5);
 
-    // --- System-placed cards ---
-    // Ensure you have at least 2 unique good people cards available
-    const systemCardA = { ...shuffledGoodPeoplePool.shift(), systemPlaced: true, stateCardApplied: [] }; // Use shift() to remove from pool
-    const systemCardB = { ...shuffledGoodPeoplePool.shift(), systemPlaced: true, stateCardApplied: [] }; // Use shift() to remove from pool
+    const systemCardA = { ...shuffledGoodPeoplePool.shift(), systemPlaced: true, stateCardApplied: [] };
+    const systemCardB = { ...shuffledGoodPeoplePool.shift(), systemPlaced: true, stateCardApplied: [] };
 
     const railA = [systemCardA];
     const railB = [systemCardB];
 
-    // --- Distribute remaining cards to player hands ---
     const playerHands = {};
-    let totalStateCardsCount = 0; // Initialize total state card counter
+    let totalStateCardsCount = 0;
 
-    // Combine remaining shuffled cards into a single deck for distribution to hands
     const cardsForHands = [
-      ...shuffledGoodPeoplePool.slice(0, numNonDrivers * 3), // Take enough good people
-      ...shuffledBadPeoplePool.slice(0, numNonDrivers * 3),   // Take enough bad people
-      ...shuffledStateCardsPool.slice(0, numNonDrivers * 3)  // Take enough state cards
-    ].sort(() => Math.random() - 0.5); // Shuffle the combined pool for hands
+      ...shuffledGoodPeoplePool.slice(0, numNonDrivers * 3),
+      ...shuffledBadPeoplePool.slice(0, numNonDrivers * 3),
+      ...shuffledStateCardsPool.slice(0, numNonDrivers * 3)
+    ].sort(() => Math.random() - 0.5);
 
-    // Deal cards to each non-driver player
     let cardIndex = 0;
     roomPlayers.forEach(player => {
-      if (player !== driver) {
+      if (player !== nextDriver) { // Use nextDriver here
         playerHands[player] = [];
         for (let i = 0; i < cardsPerPlayer; i++) {
           if (cardIndex < cardsForHands.length) {
@@ -400,29 +399,38 @@ const TrolleyProblemGame = () => {
       }
     });
 
-    // --- END NEW CARD GENERATION AND DISTRIBUTION LOGIC ---
+    // --- END CARD GENERATION AND DISTRIBUTION LOGIC ---
 
-    // Initialize scores (each player starts with 5 points if they don't have a score)
-    const currentScores = roomData.trolley?.scores || {};
+    const currentScores = currentTrolleyData?.scores || {}; // Use currentTrolleyData
     const scores = Object.fromEntries(
       roomPlayers.map(p => [p, currentScores[p] !== undefined ? currentScores[p] : 5])
     );
 
+    // --- NEW: Select Honest Player (from the non-driver players) ---
+    const nonDriverPlayers = roomPlayers.filter(p => p !== nextDriver);
+    let selectedHonestPlayer = null;
+    if (nonDriverPlayers.length > 0) {
+      const randomIndex = Math.floor(Math.random() * nonDriverPlayers.length);
+      selectedHonestPlayer = nonDriverPlayers[randomIndex];
+    }
+    // --- END NEW ---
+
     await updateDoc(roomRef, {
       'trolley': {
-        currentDriver: driver,
+        currentDriver: nextDriver, // Update with the new driver
         teamA,
         teamB,
         railA,
         railB,
         scores,
-        round: (roomData.trolley?.round || 0) + 1,
+        round: (currentTrolleyData?.round || 0) + 1, // Use currentTrolleyData for round
         selectedRail: null,
-        roundPhase: 'building', // building, deciding, completed
-        playerHands: playerHands, // Store player hands in gameData
-        totalStateCards: totalStateCardsCount, // Store the total state cards dealt
-        stateCardsUsed: 0, // Initialize state cards used count
-        // honestPlayer, listenerGuesses will be initialized here too, as per previous suggestions
+        roundPhase: 'building',
+        playerHands: playerHands,
+        totalStateCards: totalStateCardsCount,
+        stateCardsUsed: 0,
+        honestPlayer: selectedHonestPlayer, // Add honest player here
+        listenerGuesses: {}, // Initialize listener guesses for the new round
       },
       'gameState': 'playing'
     });

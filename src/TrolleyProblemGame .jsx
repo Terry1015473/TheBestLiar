@@ -3,6 +3,7 @@ import { doc, getDoc, updateDoc, onSnapshot, setDoc, arrayUnion, deleteDoc } fro
 import { db } from './firebase';
 import styles from './BestLiarGame.module.css';
 import { Users, Crown, Play, RotateCcw, Award } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 
 // Helper to generate unique IDs for cards
 const generateUniqueId = () => Math.random().toString(36).substring(2, 15);  
@@ -25,7 +26,7 @@ const ALL_GOOD_PEOPLE = [
   "宇宙中唯一對你IG限動認真留言的人","早上四點就去爬山的大叔","已經轉職為快遞員的悟空","戴著墨鏡的樂透預測師",
   "從沒說話但總是點頭微笑的電梯保全","失業後決定浪跡天涯的皮卡丘","夢裡每次都來害你的同一位陌生人",
   "鴨媽媽和他的孩子","幫你辦生日驚喜派對的我們","地球上的每個護士","正要去拯救軌道上孩子的大腳怪",
-  "一間你理想中的租屋處且租金遠低於你的預算", "達賴喇嗎", "撞上後有50%的機率引爆一個核彈",
+  "一間你理想中的租屋處且租金遠低於你的預算", "達賴喇嘛", "撞上後有50%的機率引爆一個核彈",
   "一隻剩下三條腿的流浪狗", "正在幫助鴨寶寶離開軌道的老伯", "Lebron James", "Keven Durent", "Stephen Curry",
   "正在逃離幽靈軍閥的人", "你，做完選擇後馬上被傳到軌道上", "難得有休假而舉家出遊的一家人",
   "Kpop所有的當紅偶像","能讓世界上所有疾病消失的超級細菌，若不被撞將能拯救數十億人", "一個充滿愛與和平的烏托邦社會的藍圖，若不被撞將能實現",
@@ -43,8 +44,11 @@ const ALL_GOOD_PEOPLE = [
   "你家巷口那隻會對你搖尾巴的友善流浪狗", "五月天", "你高中時的班導，雖然很兇但其實真心為你好",
   "你從小到大最喜歡的卡通人物，他活生生出現在你眼前","一間你從小吃到大的，會招待街友的麵店",
   "全球最大的太陽能發電廠","能解鎖所有被加密資料的量子電腦","太空總署用來偵測小行星撞擊地球的望遠鏡","世界上最稀有的花朵，能治療所有過敏症狀", 
-  "聯合國維和部隊的指揮中心", "一座保存了所有瀕危物種基因的方舟基地",
-  "能讓所有海水淡化的超級濾水器原型機",
+  "聯合國維和部隊的指揮中心", "一座保存了所有瀕危物種基因的方舟基地", "一個長相出眾且超喜歡妳的吸血鬼",
+  "能讓所有海水淡化的超級濾水器原型機","終於不再害羞的大腳怪","一個榮獲殊榮的中學籃球員","一個住著上古末世惡魔的脆弱水晶",
+  "能阻止世界發生危機的外交官", "海洋裡所有的魚", "IU (李之恩)", "BTS", "宮崎駿", "巨石強森", "湯姆・克魯斯","一個想讓你登頂NBA的經紀人",
+  "諾曼地登陸行動的所有友軍", "小學二年級演奏會", "正在帶領她的人民獲得自由的哈利特·塔布曼", "你家","一個在賣餅乾的女童子軍團",
+  "一個會給你三個願望的神燈精靈，如果沒被撞的話", "一場出殯儀式", "所有你最忠實的粉絲"
 ].map(name => ({ id: generateUniqueId(), name, type: 'person', character: 'good' }));
 
 const ALL_BAD_PEOPLE = [
@@ -61,8 +65,8 @@ const ALL_BAD_PEOPLE = [
   "會在電影院大聲講劇情還爆雷的陌生人","覺得AI會毀滅世界卻天天用ChatGPT的部落客",
   "強迫同事玩直銷的資深業務","用五倍券買NFT的KOL","每天都要開全音量追劇的捷運乘客",
   "地震時第一個把你推開的人","曾在你房間種下仙人掌然後不認帳的前任",
-  "喜歡丟垃圾但堅稱自己是生態藝術家","走路都看手機還嫌你擋路的人",
-  "夢到你背叛他就跟你吵架的人","打疫苗還要自拍六張上限動的人",
+  "喜歡丟垃圾但堅稱自己是生態藝術家","走路都看手機還嫌你擋路的人", "一群跟鳥一樣大的蚊子",
+  "夢到你背叛他就跟你吵架的人","打疫苗還要自拍六張上限動的人","酸民",
   "在面試時說你是他的最大敵人","會偷吃辦公室冰箱裡別人便當的那個傢伙",
   "懷疑你偷他筆結果發現是自己放錯抽屜還不道歉的人","會故意在你面前說『我不喜歡你』來測試你反應的控制狂",
   "惡意在二手交易平台放釣魚連結的詐騙王","只會耍智障作秀的政治家", "一直偷你衛生紙的隔壁桌",
@@ -86,7 +90,9 @@ const ALL_BAD_PEOPLE = [
   "一位會在別人臉書生日貼文下，留超長的產品推銷訊息的人", "時間旅行者希特勒", "超級網紅賓拉登",
   "被駭客控制的，準備向全球發射垃圾郵件的超級電腦", "充滿食人魚的亞馬遜河流域",
   "已經失控，即將撞上地球的巨大彗星，但能透過火車衝撞化解", "一家只生產黑心食品的工廠",
-  "在城市中失控，橫衝直撞的AI自駕車","一個會自動發布假新聞並無法關閉的超級電腦",
+  "在城市中失控，橫衝直撞的AI自駕車","一個會自動發布假新聞並無法關閉的超級電腦","巨型蜘蛛且正在獵殺人類",
+  "所有曾經取笑過你的小癖還", "一對在軌道上喇舌的令人厭惡的小學情侶","世界上最醜陋的裸體主義者的聚集地",
+  "阿道夫 希特勒", "一隻不停像你吐口水的駱駝","一隻要吃掉小孩的澳洲野犬","一個無視請勿穿越鐵軌的粗魯美國旅行團"
 ].map(name => ({ id: generateUniqueId(), name, type: 'person', character: 'bad' }));
 
 // Define all possible State Cards as objects with unique IDs and properties
@@ -198,6 +204,21 @@ const ALL_STATE_CARDS = [
   { id: generateUniqueId(), name: "會把所有你丟掉的垃圾都撿回來，然後分類好再丟一次", type: "state", description: "Obsessive, second-hand recycling." },
   { id: generateUniqueId(), name: "會在你睡著時，幫你蓋上棉被", type: "state", description: "Playful, artistic sleep prank." },
   { id: generateUniqueId(), name: "透過TikTok發布極端主義內容，吸引大量年輕追隨者", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "在你要睡覺時會在你耳邊學陶喆鬼叫", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "在下大雨的時候偷走你的雨傘", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "在你戴上耳機時會一職在你耳邊說話的人", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "把一屋子的窮人關起來進行器官移植還有...", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "她的口頭禪是「我有愛滋病」", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "穿上蜘蛛人的衣服為兒童醫院的小朋友加油打氣", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "總有一天會控制政府且比希特勒壞1000倍", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "如果他們死了你需要在超過1000人的喪禮上致詞", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "正在溜你的寵物", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "每次游泳時都會在游泳池裡偷尿尿", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "綁架了你的朋友且不會釋放他們除非你說服20人參加他們那白癡的募資專案", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "真真正正地在興奮", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "剛吸了一整罐噴漆所以準備要死掉了", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "正趕回家準備照顧寶寶", type: "state", description: "Playful, artistic sleep prank." },
+  { id: generateUniqueId(), name: "身上有非常種族歧視的刺青", type: "state", description: "Playful, artistic sleep prank." },
 ];
 
 const TrolleyProblemGame = () => {
@@ -293,7 +314,7 @@ const TrolleyProblemGame = () => {
 
   const assignRoles = async () => {
     if (!roomCode) return;
-    
+
     const roomRef = doc(db, 'trolley_rooms', roomCode);
     const snap = await getDoc(roomRef);
     const roomData = snap.data();
@@ -305,44 +326,84 @@ const TrolleyProblemGame = () => {
     }
 
     // Shuffle players and assign roles
-    const shuffled = [...roomPlayers].sort(() => Math.random() - 0.5);
-    const driver = shuffled[0];
-    const remainingPlayers = shuffled.slice(1);
-    
+    const shuffledPlayers = [...roomPlayers].sort(() => Math.random() - 0.5);
+    const driver = shuffledPlayers[0];
+    const remainingPlayers = shuffledPlayers.slice(1);
+
     // Split remaining players into two teams as evenly as possible
     const teamASize = Math.ceil(remainingPlayers.length / 2);
     const teamA = remainingPlayers.slice(0, teamASize);
     const teamB = remainingPlayers.slice(teamASize);
 
-    // --- NEW: Initialize rails with one system-placed good person card ---
-    // Make sure ALL_GOOD_PEOPLE has enough unique cards
-    const shuffledGoodPeople = [...ALL_GOOD_PEOPLE].sort(() => Math.random() - 0.5);
-    const systemCardA = { ...shuffledGoodPeople[0], systemPlaced: true, stateCardApplied: null };
-    const systemCardB = { ...shuffledGoodPeople[1], systemPlaced: true, stateCardApplied: null }; // Ensure it's a different card if possible
+    // --- NEW CARD GENERATION AND DISTRIBUTION LOGIC ---
 
-    const railA = [systemCardA]; // Rail A starts with one system-placed good person
-    const railB = [systemCardB]; // Rail B starts with one system-placed good person
-    // --- END NEW ---
+    // 1. Create a master pool of ALL unique cards needed for the round
+    //    We need:
+    //    - 2 good people for systemPlaced cards
+    //    - (num_non_drivers) * 3 good people
+    //    - (num_non_drivers) * 3 bad people
+    //    - (num_non_drivers) * 3 state cards (based on your current logic of 3 state cards per player)
 
-    // Deal cards to each player
+    const numNonDrivers = roomPlayers.length - 1;
+    const cardsPerPlayer = 9; // 3 good, 3 bad, 3 state cards
+
+    // Ensure ALL_GOOD_PEOPLE, ALL_BAD_PEOPLE, ALL_STATE_CARDS are defined globally
+    // with each card having a unique ID (e.g., using uuidv4 when initially creating these arrays)
+
+    let allAvailableCards = [];
+
+    // Add good people cards (ensure enough unique ones for system and player hands)
+    // Create new instances for safety in case ALL_GOOD_PEOPLE has duplicates by name
+    const goodPeoplePool = [...ALL_GOOD_PEOPLE].map(card => ({ ...card, id: uuidv4() }));
+    const badPeoplePool = [...ALL_BAD_PEOPLE].map(card => ({ ...card, id: uuidv4() }));
+    const stateCardsPool = [...ALL_STATE_CARDS].map(card => ({ ...card, id: uuidv4() }));
+
+    // Shuffle these pools initially to pick from
+    const shuffledGoodPeoplePool = [...goodPeoplePool].sort(() => Math.random() - 0.5);
+    const shuffledBadPeoplePool = [...badPeoplePool].sort(() => Math.random() - 0.5);
+    const shuffledStateCardsPool = [...stateCardsPool].sort(() => Math.random() - 0.5);
+
+    // --- System-placed cards ---
+    // Ensure you have at least 2 unique good people cards available
+    const systemCardA = { ...shuffledGoodPeoplePool.shift(), systemPlaced: true, stateCardApplied: [] }; // Use shift() to remove from pool
+    const systemCardB = { ...shuffledGoodPeoplePool.shift(), systemPlaced: true, stateCardApplied: [] }; // Use shift() to remove from pool
+
+    const railA = [systemCardA];
+    const railB = [systemCardB];
+
+    // --- Distribute remaining cards to player hands ---
     const playerHands = {};
     let totalStateCardsCount = 0; // Initialize total state card counter
+
+    // Combine remaining shuffled cards into a single deck for distribution to hands
+    const cardsForHands = [
+      ...shuffledGoodPeoplePool.slice(0, numNonDrivers * 3), // Take enough good people
+      ...shuffledBadPeoplePool.slice(0, numNonDrivers * 3),   // Take enough bad people
+      ...shuffledStateCardsPool.slice(0, numNonDrivers * 3)  // Take enough state cards
+    ].sort(() => Math.random() - 0.5); // Shuffle the combined pool for hands
+
+    // Deal cards to each non-driver player
+    let cardIndex = 0;
     roomPlayers.forEach(player => {
       if (player !== driver) {
-        // Get 3 random good persons (excluding those used for systemPlaced cards if needed, for simplicity we assume enough cards)
-        const goodPersons = [...ALL_GOOD_PEOPLE].sort(() => Math.random() - 0.5).filter(card => card.id !== systemCardA.id && card.id !== systemCardB.id).slice(0, 3);
-        // Get 3 random bad persons
-        const badPersons = [...ALL_BAD_PEOPLE].sort(() => Math.random() - 0.5).slice(0, 3);
-        // Get 1 random state card
-        const stateCard = [...ALL_STATE_CARDS].sort(() => Math.random() - 0.5).slice(0, 3);
-        
-        playerHands[player] = [...goodPersons, ...badPersons, ...stateCard]; // Player gets 3 good, 3 bad, 3 state card
-        totalStateCardsCount++; // Increment total state cards for each non-driver player
+        playerHands[player] = [];
+        for (let i = 0; i < cardsPerPlayer; i++) {
+          if (cardIndex < cardsForHands.length) {
+            const cardToDeal = cardsForHands[cardIndex];
+            playerHands[player].push(cardToDeal);
+            if (cardToDeal.type === 'state') {
+                totalStateCardsCount++;
+            }
+            cardIndex++;
+          }
+        }
       }
     });
 
-    // Initialize scores (each player starts with 3 points)
-    const currentScores = gameData?.scores || {};
+    // --- END NEW CARD GENERATION AND DISTRIBUTION LOGIC ---
+
+    // Initialize scores (each player starts with 5 points if they don't have a score)
+    const currentScores = roomData.trolley?.scores || {};
     const scores = Object.fromEntries(
       roomPlayers.map(p => [p, currentScores[p] !== undefined ? currentScores[p] : 5])
     );
@@ -352,15 +413,16 @@ const TrolleyProblemGame = () => {
         currentDriver: driver,
         teamA,
         teamB,
-        railA, // Rails start with system-placed card
-        railB, // Rails start with system-placed card
+        railA,
+        railB,
         scores,
-        round: (gameData?.round || 0) + 1,
+        round: (roomData.trolley?.round || 0) + 1,
         selectedRail: null,
         roundPhase: 'building', // building, deciding, completed
         playerHands: playerHands, // Store player hands in gameData
         totalStateCards: totalStateCardsCount, // Store the total state cards dealt
         stateCardsUsed: 0, // Initialize state cards used count
+        // honestPlayer, listenerGuesses will be initialized here too, as per previous suggestions
       },
       'gameState': 'playing'
     });

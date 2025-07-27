@@ -1003,6 +1003,7 @@ const TrolleyProblemGame = () => {
           </div>
 
           {/* Rails Display */}
+          {/* rail A */}
           <div className={`${styles.spaceY3} ${styles.mb4}`}>
             <div className={styles.railDisplayContainer}>
               <h3 className={styles.subheading}>🚉 軌道 A ({gameData?.railA.length}/3)</h3>
@@ -1052,7 +1053,7 @@ const TrolleyProblemGame = () => {
                    </div>
                 )}
             </div>
-            
+            {/* rail B */}
             <div className={styles.railDisplayContainer}>
               <h3 className={styles.subheading}>🚉 軌道 B ({gameData?.railB.length}/3)</h3>
               <div className="flex gap-2 flex-wrap">
@@ -1073,9 +1074,9 @@ const TrolleyProblemGame = () => {
                       className={`${styles.personCard} ${card.character === 'good' ? styles.goodPersonCard : styles.badPersonCard} ${card.systemPlaced ? styles.systemPlacedCard : ''} ${selectedStateCardToApply && card.type === 'person' ? styles.targetableCard : ''} ${isRemovable ? styles.removableCard : ''}`}
                       onClick={() => {
                           if (selectedStateCardToApply && card.type === 'person') {
-                              applyStateCardToPerson('railA', card.id); // Or 'railB'
+                              applyStateCardToPerson('railB', card.id);
                           } else if (isRemovable) {
-                              removePersonCardFromRail('railA', card.id); // Or 'railB'
+                              removePersonCardFromRail('railB', card.id); 
                           }
                       }}
                     >

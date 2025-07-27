@@ -854,7 +854,7 @@ const TrolleyProblemGame = () => {
           <div className={styles.cardSmall}>
             <div className={`${styles.textCenter} ${styles.mb6}`}>
               <h2 className={styles.heading}>🚂 Room: {roomCode}</h2>
-              <p className={styles.textGray}>Players: {players.length}/10</p>
+              <p className={styles.textGray}>Players: {players.length}/15</p>
             </div>
             
             <div className={`${styles.spaceY2} ${styles.mb6}`}>

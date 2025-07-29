@@ -1,48 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Crown, Eye, MessageCircle, Award, Play, RotateCcw } from 'lucide-react';
-import styles from './BestLiarGame.module.css';
+import { Users, Play, Crown, Copy } from 'lucide-react';
+import styles from './SillyGooseGame.module.css';
 import { db } from './firebase';
 import {
     doc, setDoc, updateDoc, onSnapshot, arrayUnion, getDoc, deleteDoc, arrayRemove
 } from 'firebase/firestore';
 
-const WORD_BANK = [
-  { word: "超一流運動選手的蛋", meaning: "來自《獵人×獵人》的虛構卡牌遊戲《貪婪之島》中一張極難獲得的道具卡，效果未知但稀有度極高。" }
-];
-
 const requiredPlayerNum = 2;
+const firebaseRoomName = "sillygoose_rooms";
 
 const SillyGooseGame = () => {
-  const [gameState, setGameState] = useState('home'); // home, lobby, playing, ended
+  const [gameState, setGameState] = useState("home"); // home, lobby, playing
   
-  const [players, setPlayers] = useState([]);
-  const [currentPlayer, setCurrentPlayer] = useState('');
+  const [playerName, setPlayerName] = useState("");
+  const [allPlayers, setAllPlayers] = useState([]);
+  const [playerID, setPlayerID] = useState(0);
   
-  const [roomCode, setRoomCode] = useState('');
-  const [inputRoomCode, setInputRoomCode] = useState('');
-  const [isRoomHead, setIsRoomHead] = useState(false);
+  const [roomCode, setRoomCode] = useState("");
+  const [isRoomHost, setIsRoomHost] = useState(false);
+  const [unsubscribeRoom, setUnsubscribeRoom] = useState(null);
+
+  const [showLeaveGameModal, setShowLeaveGameModal] = useState(false);
+  const [showLeaveRoomModal, setShowLeaveRoomModal] = useState(false);
 
   const generateRoomCode = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
   };
 
   const createRoom = async () => {
-    if (!currentPlayer.trim()) return;
-    
     const code = generateRoomCode();
-    const roomRef = doc(db, "rooms", code);
+    const roomRef = doc(db, firebaseRoomName, code);
 
     try {
       await setDoc(roomRef, {
-        gameState: 'lobby',
-        players: [currentPlayer],
-        playerScores: { [currentPlayer]: 0 },
-        createdAt: Date.now()
+        isPlaying: false,  // doc state
+        allPlayers: [playerName],  // doc state
       });
 
-      setGameState('lobby');
+      setGameState("lobby");
       setRoomCode(code);
-      setIsRoomHead(true);
+      setIsRoomHost(true);
+
+      listenToRoom(code);
     } catch (error) {
       console.error("Error creating room:", error);
       alert("Error creating room. Please try again.");
@@ -50,233 +49,170 @@ const SillyGooseGame = () => {
   };
 
   const joinRoom = async (code) => {
-    if (!currentPlayer.trim() || !code.trim()) return;
-    
-    const roomRef = doc(db, "rooms", code);
+    const roomRef = doc(db, firebaseRoomName, roomCode);
     
     try {
       const roomSnap = await getDoc(roomRef);
-
-      if (roomSnap.exists()) {
-        const data = roomSnap.data();
-        
-        // Check if player is already in the room
-        if (data.players.includes(currentPlayer)) {
-          alert("A player with this name is already in the room!");
-          return;
-        }
-        
-        // Check if room is full
-        if (data.players.length >= 15) {
-          alert("Room is full!");
-          return;
-        }
-        
-        await updateDoc(roomRef, {
-          players: arrayUnion(currentPlayer),
-          [`playerScores.${currentPlayer}`]: 0
-        });
-
-        setRoomCode(code);
-        setIsRoomHead(false);
-        setGameState('lobby');
-      } else {
+      if (!roomSnap.exists()) {
         alert("Room not found!");
+        return;
       }
+      const data = roomSnap.data();
+
+      // Check if the game already started
+      if (data.isPlaying) {
+        alert("The game already started!");
+        return;
+      }
+      
+      // Check if player is already in the room
+      if (data.allPlayers.includes(playerName)) {
+        alert("A player with this name is already in the room!");
+        return;
+      }
+      
+      await updateDoc(roomRef, {
+        allPlayers: [...data.allPlayers, playerName],
+      });
+
+      setGameState("lobby");
+
+      listenToRoom(code);
     } catch (error) {
       console.error("Error joining room:", error);
       alert("Error joining room. Please try again.");
     }
   };
 
+  const listenToRoom = (code) => {
+    const roomRef = doc(db, firebaseRoomName, code);
+
+    const unsub = onSnapshot(roomRef, (roomSnap) => {
+      if (roomSnap.exists()) {
+        const data = roomSnap.data();
+        setAllPlayers(data.allPlayers);
+        setPlayerID(data.allPlayers.indexOf(playerName));
+        setGameState(data.isPlaying ? "playing" : "lobby");
+      } else {
+        setGameState("home");
+        setPlayerName("");
+        setAllPlayers([]);
+        setRoomCode("");
+        alert("The room has been closed by the host.");
+      }
+    });
+
+    setUnsubscribeRoom(() => unsub);
+  };
+
   const deleteRoom = async (code) => {
+    const roomRef = doc(db, firebaseRoomName, code);
+    
     try {
-      await deleteDoc(doc(db, 'rooms', code));
+      await deleteDoc(roomRef);
     } catch (error) {
       console.error("Error deleting room:", error);
     }
   };
 
-  const leaveRoom = async () => {
-    if (!roomCode || !currentPlayer) return;
-    
-    const roomRef = doc(db, 'rooms', roomCode);
+  const leaveRoom = async (code) => {
+    const roomRef = doc(db, firebaseRoomName, code);
     
     try {
       const roomSnap = await getDoc(roomRef);
       if (!roomSnap.exists()) return;
-      
       const data = roomSnap.data();
-      const updatedPlayers = data.players.filter(p => p !== currentPlayer);
+
+      unsubscribeRoom();
       
-      // If this is the last player, delete the room
-      if (updatedPlayers.length === 0) {
-        await deleteRoom(roomCode);
-        resetLocalState();
-        return;
+      if (isRoomHost) {
+        await deleteRoom(code);
+      } else {
+        await updateDoc(roomRef, {
+            allPlayers: data.allPlayers.filter(p => p !== playerName),
+        });
       }
-      
-      // Clean up player-related data
-      const updatedPlayerScores = { ...data.playerScores };
-      delete updatedPlayerScores[currentPlayer];
-      
-      const updatedUsedListeners = data.usedListeners.filter(p => p !== currentPlayer);
-      
-      // Clean up WTF cards
-      const updatedWtfCards = { ...data.wtfCards };
-      delete updatedWtfCards[currentPlayer];
-      
-      let updateData = {
-        players: updatedPlayers,
-        playerScores: updatedPlayerScores,
-        usedListeners: updatedUsedListeners,
-        wtfCards: updatedWtfCards
-      };
-      
-      // Handle special game state updates
-      if (data.gameState === 'playing') {
-        let needsNewRound = false;
-        
-        // If the listener left
-        if (data.listener === currentPlayer) {
-          needsNewRound = true;
-        }
-        
-        // If the honest player left
-        if (data.honestPlayer === currentPlayer) {
-          needsNewRound = true;
-        }
-        
-        // If we need a new round but don't have enough players
-        if (needsNewRound && updatedPlayers.length < 3) {
-          updateData.gameState = 'lobby';
-          updateData.listener = '';
-          updateData.honestPlayer = '';
-          updateData.currentWord = null;
-          updateData.wtfCards = {};
-          updateData.usedListeners = [];
-          updateData.roundPhase = 'playing';
-          updateData.wtfCardsUsed = 0;
-          updateData.currentRound = 1;
-        } else if (needsNewRound) {
-          // Start a new round with remaining players
-          const availableListeners = updatedPlayers.filter(p => !updatedUsedListeners.includes(p));
-          if (availableListeners.length > 0) {
-            const newListener = availableListeners[Math.floor(Math.random() * availableListeners.length)];
-            const remainingPlayers = updatedPlayers.filter(p => p !== newListener);
-            const newHonestPlayer = remainingPlayers[Math.floor(Math.random() * remainingPlayers.length)];
-            const randomWord = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
-            
-            updateData.listener = newListener;
-            updateData.honestPlayer = newHonestPlayer;
-            updateData.currentWord = randomWord;
-            updateData.wtfCards = {};
-            updateData.wtfCardsUsed = 0;
-            updateData.roundPhase = 'playing';
-          } else {
-            // All players have been listeners, end the game
-            updateData.gameState = 'ended';
-          }
-        }
-      }
-      
-      await updateDoc(roomRef, updateData);
-      resetLocalState();
-      
+
+      setGameState("home");
+      setPlayerName("");
+      setAllPlayers([]);
+      setRoomCode("");
+      setIsRoomHost(false);
     } catch (error) {
       console.error("Error leaving room:", error);
-      resetLocalState();
+      alert("Error leaving room. Please try again.");
     }
   };
 
-  const startGame = async () => {
-    if (!isRoomHead) return;
-    
-    const roomRef = doc(db, "rooms", roomCode);
+  const startGame = async (code) => {
+    const roomRef = doc(db, firebaseRoomName, code);
     
     try {
-      const roomSnap = await getDoc(roomRef);
-      const data = roomSnap.data();
-
-      if (data.players.length >= requiredPlayerNum) {
-        const availableListeners = data.players.filter(p => !(data.usedListeners || []).includes(p));
-        const newListener = availableListeners[Math.floor(Math.random() * availableListeners.length)];
-        const remainingPlayers = data.players.filter(p => p !== newListener);
-        const newHonestPlayer = remainingPlayers[Math.floor(Math.random() * remainingPlayers.length)];
-        const randomWord = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
-
-        await updateDoc(roomRef, {
-          listener: newListener,
-          honestPlayer: newHonestPlayer,
-          currentWord: randomWord,
-          gameState: "playing",
-          roundPhase: "playing",
-          wtfCardsUsed: 0,
-          wtfCards: {},
-          usedListeners: data.usedListeners || [],
-        });
-      } else {
-        alert("Need at least ", requiredPlayerNum, " players to start!");
-      }
+      await updateDoc(roomRef, {
+        isPlaying: true,
+      });
     } catch (error) {
       console.error("Error starting game:", error);
       alert("Error starting game. Please try again.");
     }
   };
 
-  const resetGame = () => {
-    leaveRoom();
+  const leaveGame = async (code) => {
+    const roomRef = doc(db, firebaseRoomName, code);
+    
+    try {
+      await updateDoc(roomRef, {
+        isPlaying: false,
+      });
+    } catch (error) {
+      console.error("Error leaving game:", error);
+      alert("Error leaving game. Please try again.");
+    }
   };
 
-  // Firebase listener
-  useEffect(() => {
-    if (!roomCode) return;
+  const copyRoomCodeToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+    } catch (err) {
+      console.error("Failed to copy room code:", err);
+      alert("Failed to copy room code.");
+    }
+  };
 
-    const roomRef = doc(db, "rooms", roomCode);
-    const unsub = onSnapshot(roomRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setPlayers(data.players || []);
-        setPlayerScores(data.playerScores || {});
-        setGameState(data.gameState || 'lobby');
-        setListener(data.listener || '');
-        setHonestPlayer(data.honestPlayer || '');
-        setCurrentWord(data.currentWord || null);
-        setWtfCards(data.wtfCards || {});
-        setUsedListeners(data.usedListeners || []);
-        setRoundPhase(data.roundPhase || 'playing');
-        setWtfCardsUsed(data.wtfCardsUsed || 0);
-        setCurrentRound(data.currentRound || 1);
-        
-        // Check if current player is room head (first player)
-        if (data.players && data.players.length > 0) {
-          setIsRoomHead(currentPlayer === data.players[0]);
-        }
-      }
-    });
+  const ruleDiscription = (
+    <p className={styles.footerText}>
+      每輪有三個提示，所有人可以討論選擇哪一個提示，但不能說出待會要寫的答案<br />
+      <br />
+      普通成員: 根據提示盡量和其他人寫出「一樣」的答案<br />
+      糊塗鬼: 寫出「合理」但和其他人「不一樣」的答案<br />
+      <br />
+      遊戲共有七輪，其中有四輪全體答案一致則普通成員獲勝，反之則糊塗鬼獲勝<br />
+    </p>
+  )
 
-    return () => unsub();
-  }, [roomCode, currentPlayer]);
-
-  if (gameState === 'home') {
+  if (gameState === "home") {
     return (
       <div className={styles.container}>
         {/* Body */}
         <div className={styles.maxWidthMd}>
           <div className={styles.card}>
             {/* title */}
-            <h1 className={styles.title}>Who's the Silly Goose?</h1>
+            <h1 className={styles.title}>
+              Who's the Silly Goose?
+            </h1>
 
             {/* subtitle */}
-            <p className={`${styles.subtitle} ${styles.textGray}`}>A telepathy game</p>
+            <p className={`${styles.subtitle} ${styles.textGray}`}>
+              A telepathy game
+            </p>
             
             {/* player name input field */}
             <div className={`${styles.spaceY4} ${styles.mb8}`}>
               <input
                 type="text"
                 placeholder="Enter your name"
-                value={currentPlayer}
-                onChange={(e) => setCurrentPlayer(e.target.value)}
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
                 className={styles.input}
               />
             </div>
@@ -285,7 +221,7 @@ const SillyGooseGame = () => {
               {/* create room button */}
               <button
                 onClick={createRoom}
-                disabled={!currentPlayer.trim()}
+                disabled={!playerName.trim()}
                 className={`${styles.button} ${styles.buttonPrimary}`}
               >
                 <Users className={styles.icon} />
@@ -297,15 +233,15 @@ const SillyGooseGame = () => {
                 <input
                   type="text"
                   placeholder="Room Code"
-                  value={inputRoomCode}
+                  value={roomCode}
                   className={styles.inputSmall}
-                  onChange={(e) => setInputRoomCode(e.target.value.toUpperCase())}
+                  onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                 />
 
                 {/* join button */}
                 <button
-                  onClick={() => joinRoom(inputRoomCode)}
-                  disabled={!currentPlayer.trim() || !inputRoomCode.trim()}
+                  onClick={() => joinRoom(roomCode)}
+                  disabled={!playerName.trim() || !roomCode.trim()}
                   className={`${styles.button} ${styles.buttonSecondary} ${styles.buttonSmall}`}
                 >
                   Join
@@ -317,66 +253,179 @@ const SillyGooseGame = () => {
         
         {/* Footer */}
         <div className={styles.footer}>
-            <p className={styles.footerText}>
-              每輪有三個提示，所有人可以討論選擇哪一個提示，但不能說出待會要寫的答案<br />
-              <br />
-              普通成員: 根據提示盡量和其他人寫出「一樣」的答案<br />
-              糊塗鬼: 寫出「合理」但和其他人「不一樣」的答案<br />
-              <br />
-              遊戲共有七輪，其中有四輪全體答案一致則普通成員獲勝，反之則糊塗鬼獲勝<br />
-            </p>
+          {ruleDiscription}
         </div>
       </div>
     );
   }
 
-  if (gameState === 'lobby') {
+  if (gameState === "lobby") {
     return (
-      <div className={styles.container}>
-        <div className={styles.maxWidthMd}>
-          <div className={styles.cardSmall}>
-            <div className={`${styles.textCenter} ${styles.mb6}`}>
-              <h2 className={styles.heading}>Room: {roomCode}</h2>
-              <p className={styles.textGray}>Players: {players.length}/{requiredPlayerNum}</p>
-            </div>
-            
-            {isRoomHead && (
+      <div>
+        {/* Leave Room Modal */}
+        {showLeaveRoomModal && (
+          <div className={styles.iosModalOverlay}>
+            <div className={styles.iosModal}>
+              <p className={styles.textBlack}>
+                Are you sure you want to leave the room?
+              </p>
+
               <button
-                onClick={startGame}
-                disabled={players.length !== requiredPlayerNum}
-                className={`${styles.button} ${styles.buttonSuccess}`}
+                onClick={() => { leaveRoom(roomCode); setShowLeaveRoomModal(false); }}
+                className={`${styles.iosModalButton} ${styles.iosModalButtonPrimary}`}
               >
-                {players.length < requiredPlayerNum &&
-                `Need ${requiredPlayerNum - players.length} more player${requiredPlayerNum - players.length === 1 ? '' : 's'}`}
-                {players.length > requiredPlayerNum &&
-                `Too many players! Ask ${players.length - requiredPlayerNum} to leave`}
-                {players.length === requiredPlayerNum && 
-                <Play className={styles.icon} /> && 'Start Game'}
+                Leave Room
               </button>
-            )}
-            
-            {!isRoomHead && (
-              <p className={styles.textGray}>Waiting for room host to start the game...</p>
-            )}
-            
-            <button
-              onClick={resetGame}
-              className={`${styles.button} ${styles.buttonGray} ${styles.mt3}`}
-            >
-              Leave Room
-            </button>
+
+              <button
+                onClick={() => setShowLeaveRoomModal(false)}
+                className={`${styles.iosModalButton} ${styles.iosModalButtonCancel}`}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className={styles.container}>
+          {/* Body */}
+          <div className={styles.maxWidthMd}>
+            <div className={styles.cardSmall}>
+              <div className={`${styles.textCenter} ${styles.mb6}`}>
+                <div className={styles.relativeWrapper}>
+                  {/* room code */}
+                  <h2 className={`${styles.heading} ${styles.centerText}`}>
+                    Room: {roomCode}
+                  </h2>
+
+                  {/* copy button */}
+                  <button
+                    onClick={copyRoomCodeToClipboard}
+                    className={`${styles.copyButton}`}
+                  >
+                    <Copy className={styles.icon} />
+                    Copy
+                  </button>
+                </div>
+
+                {/* player number */}
+                <p className={styles.textGray}>
+                  Players: {allPlayers.length}/{requiredPlayerNum}
+                </p>
+              </div>
+              
+              {/* player list */}
+              <div className={`${styles.spaceY2} ${styles.mb6}`}>
+                {allPlayers.map((player, index) => (
+                  <div key={index} className={styles.playerItem}>
+                    <span className={styles.playerName}>
+                      {player}
+                    </span>
+                    <div className={styles.playerIcons}>
+                      {player === playerName && <span className={styles.pointingFinger}>🫵</span>}
+                      {index === 0 && <Crown className={`${styles.icon} ${styles.iconYellow}`} />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* start button */}
+              {isRoomHost && (
+                <button
+                  onClick={() => startGame(roomCode)}
+                  disabled={allPlayers.length !== requiredPlayerNum}
+                  className={`${styles.button} ${styles.buttonSuccess}`}
+                >
+                  {allPlayers.length < requiredPlayerNum &&
+                  `Need ${requiredPlayerNum - allPlayers.length} more player${requiredPlayerNum - allPlayers.length === 1 ? '' : 's'}`}
+                  {allPlayers.length > requiredPlayerNum &&
+                  `Too many allPlayers! Ask ${allPlayers.length - requiredPlayerNum} to leave`}
+                  {allPlayers.length === requiredPlayerNum && 
+                  <Play className={styles.icon} /> && 'Start Game'}
+                </button>
+              )}
+              {!isRoomHost && (
+                <p className={styles.textGray}>
+                  Waiting for room host to start the game...
+                </p>
+              )}
+              
+              {/* leave room button */}
+              <button
+                onClick={() => setShowLeaveRoomModal(true)}
+                className={`${styles.button} ${styles.buttonGray} ${styles.mt3}`}
+              >
+                Leave Room
+              </button>
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className={styles.footer}>
+            {ruleDiscription}
           </div>
         </div>
-        {/* Footer */}
-        <div className={styles.footer}>
-            <p className={styles.footerText}>
-            每輪有三個提示，所有人可以討論選擇哪一個提示，但不能說出待會要寫的答案<br />
-            <br />
-            普通成員: 根據提示盡量和其他人寫出「一樣」的答案<br />
-            糊塗鬼: 寫出「合理」但和其他人「不一樣」的答案<br />
-            <br />
-            遊戲共有七輪，其中有四輪全體答案一致則普通成員獲勝，反之則糊塗鬼獲勝<br />
-            </p>
+      </div>
+    );
+  }
+
+  if (gameState === "playing") {
+    return (
+      <div>
+        {/* Leave Game Modal */}
+        {showLeaveGameModal && (
+          <div className={styles.iosModalOverlay}>
+            <div className={styles.iosModal}>
+              <p className={styles.textBlack}>
+                Are you sure you want to end the game and go back to the lobby?
+              </p>
+
+              <button
+                onClick={() => { leaveGame(roomCode); setShowLeaveGameModal(false); }}
+                className={`${styles.iosModalButton} ${styles.iosModalButtonPrimary}`}
+              >
+                End Game
+              </button>
+
+              <button
+                onClick={() => setShowLeaveGameModal(false)}
+                className={`${styles.iosModalButton} ${styles.iosModalButtonCancel}`}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className={styles.container}>
+          {/* Body */}
+          <div className={styles.maxWidthMd}>
+            <div className={styles.cardSmall}>
+              <div className={`${styles.textCenter} ${styles.mb6}`}>
+                {/* title */}
+                <h1 className={styles.title}>
+                  Who's the Silly Goose?
+                </h1>
+              </div>
+
+              {/* back to lobby button */}
+              {isRoomHost && (
+                <button
+                  onClick={() => setShowLeaveGameModal(true)}
+                  className={`${styles.button} ${styles.buttonGray} ${styles.mt3}`}
+                >
+                  Back to Lobby
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className={styles.footer}>
+            {ruleDiscription}
+          </div>
         </div>
       </div>
     );

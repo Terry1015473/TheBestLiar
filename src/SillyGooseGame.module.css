@@ -1,0 +1,840 @@
+/* BestLiarGame.module.css */
+
+/* Base Layout */
+.container {
+  min-height: 100vh;
+  padding: 1rem;
+  background: linear-gradient(to bottom right, #7c3aed, #3b82f6);
+  min-width: 95vh;
+}
+
+.maxWidthMd {
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.maxWidth2xl {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+/* Cards */
+.card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 2rem;
+}
+
+.cardSmall {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+}
+
+/* Typography */
+.title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.titleLarge {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.subtitle {
+  color: #4b5563;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  text-align: center;
+}
+
+.subheading {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.textCenter {
+  text-align: center;
+}
+
+.textLarge {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.textBlue {
+  color: #2563eb;
+}
+
+.textGreen {
+  color: #16a34a;
+}
+
+.textRed {
+  color: #dc2626;
+}
+
+.textPurple {
+  color: #7c3aed;
+}
+
+.textGray {
+  color: #4b5563;
+}
+
+.textYellow {
+  color: #d97706;
+}
+
+.textBlack {
+  color: #070707;
+}
+
+/* Inputs */
+.input {
+  width: 80%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.inputSmall {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.inputSmall:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+/* Buttons */
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  margin: 0.5rem;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonPrimary {
+  background-color: #7c3aed;
+  color: white;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: #6d28d9;
+}
+
+.buttonSecondary {
+  background-color: #2563eb;
+  color: white;
+  margin: 0.5rem;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.buttonSuccess {
+  background-color: #16a34a;
+  color: white;
+}
+
+.buttonSuccess:hover:not(:disabled) {
+  background-color: #15803d;
+}
+
+.buttonWarning {
+  background-color: #ea580c;
+  color: white;
+}
+
+.buttonWarning:hover:not(:disabled) {
+  background-color: #c2410c;
+}
+
+.buttonGray {
+  background-color: #4b5563;
+  color: white;
+}
+
+.buttonGray:hover:not(:disabled) {
+  background-color: #374151;
+}
+
+.buttonSmall {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.buttonLeave {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.buttonWtf {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  border: 2px solid;
+}
+
+.buttonWtf:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonWtfActive {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.buttonWtfInactive {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.buttonWtfInactive:hover:not(:disabled) {
+  background-color: #bfdbfe;
+}
+
+/* Layout */
+.spaceY2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.spaceY3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.spaceY4 > * + * {
+  margin-top: 1rem;
+}
+
+.spaceY6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.spaceY8 > * + * {
+  margin-top: 2rem;
+}
+
+.mb2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb3 {
+  margin-bottom: 0.75rem;
+}
+
+.mb4 {
+  margin-bottom: 1rem;
+}
+
+.mb6 {
+  margin-bottom: 1.5rem;
+}
+
+.mb8 {
+  margin-bottom: 2rem;
+}
+
+.mt1 {
+  margin-top: 0.25rem;
+}
+
+.mt2 {
+  margin-top: 0.5rem;
+}
+
+.mt3 {
+  margin-top: 0.75rem;
+}
+
+.mt4 {
+  margin-top: 1rem;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 4rem;
+  padding-bottom: 2rem;
+}
+
+.footerText {
+  color: #070707;
+  font-weight: bold;
+}
+
+/* Flexbox */
+.flexCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.flexBetween {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flexGap2 {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.flexGap3 {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+}
+
+.gridCols1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.gridCols2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gap2 {
+  gap: 0.5rem;
+}
+
+.gap6 {
+  gap: 1.5rem;
+}
+
+.personCard {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem; /* text-sm */
+  text-align: center;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow-md */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: default; /* Indicate it's not directly clickable but can be hovered */
+  flex-grow: 1; /* Allows cards to grow and fill space */
+  min-width: 150px; /* Minimum width for cards */
+}
+
+.personCard:hover {
+  transform: translateY(-3px); /* Slight lift on hover */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Larger shadow on hover */
+}
+
+.goodPersonCard {
+  background-color: #d1fae5; /* equivalent to bg-green-100 */
+  color: #065f46; /* equivalent to text-green-800 */
+  border: 1px solid #34d399; /* A green border */
+}
+
+.badPersonCard {
+  background-color: #fee2e2; /* equivalent to bg-red-100 */
+  color: #991b1b; /* equivalent to text-red-800 */
+  border: 1px solid #f87171; /* A red border */
+}
+
+.emptyPersonCard {
+  background-color: #f3f4f6; /* light gray */
+  color: #6b7280; /* gray text */
+  border: 1px dashed #d1d5db; /* dashed border */
+}
+
+/* NEW: Style for system-placed (non-removable) cards */
+.systemPlacedCard {
+  background-color: #a7f3d0; /* A darker green for system-placed good cards */
+  color: #047857; /* Darker text for contrast */
+  border: 2px solid #10b981; /* A more prominent border */
+  cursor: not-allowed; /* Indicate it's not interactive for removal */
+  opacity: 0.9; /* Slightly subdued look */
+}
+
+.systemPlacedCard:hover {
+  transform: none; /* No lift on hover for system cards */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* No extra shadow on hover */
+}
+
+/* For the train icon animation */
+.trainImpactIcon {
+  position: absolute; /* Will be positioned relative to its parent container */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.1); /* Start small */
+  font-size: 2rem; /* Initial size */
+  transition: transform 1s ease-out, font-size 1s ease-out, opacity 1s ease-out; /* Animation properties */
+  opacity: 0; /* Start invisible */
+  z-index: 10; /* Ensure it's on top */
+  color: #ff0000; /* Red color for impact */
+  pointer-events: none; /* Allows clicks on elements behind it */
+}
+
+.trainImpactIcon.animate {
+  transform: translate(-50%, -50%) scale(3); /* Grow larger */
+  font-size: 8rem; /* Final size */
+  opacity: 1; /* Become visible */
+}
+
+/* Add this to your styles for the rail containers if they aren't already relative */
+.railDisplayContainer { /* Apply this to the div wrapping each rail */
+  position: relative;
+  overflow: hidden; /* Important to clip the growing icon if it goes too far outside */
+}
+
+/* Responsive Grid */
+@media (min-width: 768px) {
+  .gridColsMd2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Backgrounds */
+.bgGray50 {
+  background-color: #f9fafb;
+}
+
+.bgYellow50 {
+  background-color: #fffbeb;
+}
+
+.bgYellow100 {
+  background-color: #fef3c7;
+}
+
+.bgGray100 {
+  background-color: #f3f4f6;
+}
+
+.bgOrange100 {
+  background-color: #fed7aa;
+}
+
+/* Borders */
+.border2Yellow {
+  border: 2px solid #fbbf24;
+}
+
+.border2Gray {
+  border: 2px solid #d1d5db;
+}
+
+.border2Orange {
+  border: 2px solid #fb923c;
+}
+
+.rounded {
+  border-radius: 0.25rem;
+}
+
+.roundedLg {
+  border-radius: 0.5rem;
+}
+
+/* Padding */
+.p2 {
+  padding: 0.5rem;
+}
+
+.p3 {
+  padding: 0.75rem;
+}
+
+.p4 {
+  padding: 1rem;
+}
+
+.p6 {
+  padding: 1.5rem;
+}
+
+.px3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.px4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.px6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.py2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.py3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Special Components */
+.playerItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.playerItem .playerName {
+  font-weight: 500;
+  color: #070707
+}
+
+.roleCard {
+  background-color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.scoreItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.25rem;
+}
+
+.scoreItem .playerName {
+  font-weight: 500;
+}
+
+.scoreItem .score {
+  font-weight: bold;
+  color: #7c3aed;
+}
+
+.resultCard {
+  background-color: #fffbeb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.resultCard .title {
+  font-weight: 600;
+  color: #d97706;
+  margin-bottom: 0.5rem;
+}
+
+.resultCard .content {
+  color: #b45309;
+}
+
+.rankingItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.rankingItem .left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.rankingItem .rank {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4b5563;
+}
+
+.rankingItem .name {
+  font-weight: 500;
+}
+
+.rankingItem .score {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #7c3aed;
+}
+
+.rankingFirst {
+  background-color: #fef3c7;
+  border: 2px solid #fbbf24;
+}
+
+.rankingSecond {
+  background-color: #f3f4f6;
+  border: 2px solid #d1d5db;
+}
+
+.rankingThird {
+  background-color: #fed7aa;
+  border: 2px solid #fb923c;
+}
+
+.rankingOther {
+  background-color: #f9fafb;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.iconLarge {
+  width: 4rem;
+  height: 4rem;
+  color: #eab308;
+  margin: 0 auto 1rem auto;
+}
+
+.iconYellow {
+  color: #eab308;
+}
+
+.wtfIcon {
+  width: 24px;
+  height: 24px;
+  margin-left: 8pt;
+  vertical-align: middle;
+}
+
+.gameWrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.wtfOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.wtfImage {
+  width: 100%;
+  height: 100%; 
+  object-fit: contain;
+}
+
+/* --- Progress Bar Styles --- */
+.progressBarFillSkyBlue {
+    background-color: #86e0f0; /* Matches original textGreen color */
+}
+
+.progressBarFillGold {
+    background-color: #dff3a7; /* Matches original textGreen color */
+}
+
+.progressBarFillPink {
+    background-color: #f736ad; /* Matches original textGreen color */
+}
+
+.progressBarFillGreen {
+    background-color: #16a34a; /* Matches original textGreen color */
+}
+
+.progressBarFillRed {
+    background-color: #dc2626; /* Matches original textRed color */
+}
+
+.progressBarFillBlue {
+    background-color: #2563eb; /* Matches original textBlue color */
+}
+
+.progressBarFillPurple {
+    background-color: #7c3aed; /* Matches original textPurple color */
+}
+
+.progressBarFillYellow {
+    background-color: #d97706; /* Matches original textYellow color */
+}
+
+.progressBarFillGray {
+    background-color: #4b5563; /* Matches original textGray color */
+}
+
+.progressBarContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem; /* Space between each progress bar */
+    gap: 0.5rem; /* Space between label, bar, and value */
+    flex-wrap: nowrap; /* Prevent wrapping on smaller screens */
+}
+
+.progressBarLabel {
+    flex-basis: 120px; /* Fixed width for labels to align them */
+    flex-shrink: 0; /* Prevent shrinking */
+    text-align: right;
+    font-weight: 500;
+    color: var(--text-gray);
+    padding-right: 0.5rem; /* Space between label and bar */
+}
+
+.progressBarBackground {
+    flex-grow: 1; /* Allow the bar to take up remaining space */
+    background-color: var(--color-gray-200);
+    border-radius: 9999px; /* Pill shape */
+    height: 12px;
+    overflow: hidden; /* Ensures the filled part stays within the rounded background */
+}
+
+.progressBarFill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.3s ease-in-out; /* Smooth animation when value changes */
+}
+
+.progressBarValue {
+    flex-basis: 50px; /* Fixed width for value text (e.g., "100%") */
+    flex-shrink: 0; /* Prevent shrinking */
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-color); /* General text color */
+    padding-left: 0.5rem; /* Space between bar and value */
+}
+
+/* room code & copy button */
+.relativeWrapper {
+  position: relative;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.centerText {
+  margin: 0;
+}
+
+.copyButton {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  background-color: var(--secondary-bg);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #b1b4b86d;
+  color: #070707;
+}
+
+/* leave game modal & leave room modal */
+.iosModalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.iosModal {
+  width: 40%;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 24px 20px;
+  margin-bottom: 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.iosModalButton {
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  font-size: 16px;
+  border: none;
+  background-color: transparent;
+  border-top: 1px solid #eee;
+  cursor: pointer;
+}
+
+.iosModalButtonPrimary {
+  color: #007aff;
+  font-weight: 600;
+}
+
+.iosModalButtonCancel {
+  color: #333;
+}
+
+/* player list */
+.pointingFinger {
+  position: relative;
+  top: -2px;
+}
+
+.playerIcons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}

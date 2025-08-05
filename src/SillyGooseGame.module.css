@@ -4,12 +4,12 @@
 .container {
   min-height: 100vh;
   padding: 1rem;
-  background: linear-gradient(to bottom right, #7c3aed, #3b82f6);
+  background: linear-gradient(to bottom right, #ffad72, #ffe57d);
   min-width: 95vh;
 }
 
 .maxWidthMd {
-  max-width: 28rem;
+  max-width: 42rem;
   margin: 0 auto;
 }
 
@@ -159,12 +159,12 @@
 }
 
 .buttonPrimary {
-  background-color: #7c3aed;
+  background-color: #facc15;
   color: white;
 }
 
 .buttonPrimary:hover:not(:disabled) {
-  background-color: #6d28d9;
+  background-color: #eab308;
 }
 
 .buttonSecondary {
@@ -326,6 +326,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.resetH4 {
+  margin: 0;
+  padding: 0;
 }
 
 .flexGap2 {
@@ -538,6 +543,11 @@
 .playerItem .playerName {
   font-weight: 500;
   color: #070707
+}
+
+.playerItem .playerNameSelected {
+  font-weight: 500;
+  color: #b45309
 }
 
 .roleCard {
@@ -837,4 +847,135 @@
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* wod & hints */
+.wordBlock {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.wordTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.hintGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.hintButton {
+  padding: 12px 8px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.hintButton:disabled {
+  cursor: default;
+}
+
+.hintButton:not(:disabled):hover {
+  background-color: #e0e0e0;
+}
+
+.hintButtonSelected {
+  padding: 12px 8px;
+  background-color: #fff7d9;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  cursor: default;
+  transition: all 0.2s ease;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.selectedHintText {
+  color: #b45309;
+}
+
+/* instruction */
+.instructionBlock {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+/* answer input */
+.answerInputBlock {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.answerInput {
+  flex: 1;
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #070707
+}
+
+.submitButton {
+  padding: 8px 16px;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.submitButton:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* player button */
+.playerButton {
+  padding: 12px 8px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: normal;
+  line-height: 1.4;
+  justify-content: space-between;
+}
+
+.playerButton:disabled {
+  cursor: default;
+}
+
+.playerButton:not(:disabled):hover {
+  background-color: #e0e0e0;
+}
+
+.playerButtonSelected {
+  padding: 12px 8px;
+  background-color: #fff7d9;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  cursor: default;
+  transition: all 0.2s ease;
+  white-space: normal;
+  line-height: 1.4;
+  justify-content: space-between;
+}
+
+.playerButtonSelected:disabled {
+  cursor: default;
 }
